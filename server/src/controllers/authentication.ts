@@ -7,7 +7,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 
     try {
 
-        const { username, password } = req.body;
+        const { username, password, avatar } = req.body;
 
         if (!username || !password)
             return res.status(400).send('No username or password provided');
@@ -23,6 +23,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 
         const user = await createUser({
             username,
+            avatar,
             authentication: {
                 salt,
                 password: authentication(salt, password)
