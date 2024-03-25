@@ -1,13 +1,19 @@
-import React, { useState } from 'react'
-import { useTheme } from '../contexts/ThemeProvider';
+import React, { useEffect, useState } from 'react'
+import { useTheme } from '../../contexts/ThemeProvider';
+import useSWR from 'swr';
+import { dividerClasses } from '@mui/material';
 
 
 
-
-const UserBox = () => {
+const UserBox: React.FC = () => {
 
     const theme = useTheme();
-    const [isRegister, setIsRegister] = useState(false);
+    const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+
+    const { data: avatars, isLoading } = useSWR<String[]>('http://localhost:5000/avatars', fetcher);
+
+
 
     return (
         <div id="signIn"
@@ -17,12 +23,8 @@ const UserBox = () => {
 
 
 
-            <p className={`${isRegister ? '' : 'hidden'} bg-gradient-to-r animate-expand from-indigo-500 via-purple-500 to-purple-700 text-white 
+            <p className={`bg-gradient-to-r animate-expand from-indigo-500 via-purple-500 to-purple-700 text-white 
             w-full text-center rounded-xl text-2xl`}>Register</p>
-
-            <p className={`${isRegister ? 'hidden' : ''} bg-gradient-to-r none animate-expand from-indigo-500 via-purple-500 to-purple-700 text-white 
-            w-full text-center rounded-xl text-2xl`}>Login</p>
-
 
 
             <div className='mb-10'>
@@ -44,19 +46,32 @@ const UserBox = () => {
                             placeholder='Password'
                             required />
 
-                        {
-                            !isRegister &&
-                            <p>Don't have an account? <span
-                                className=' cursor-pointer underline hover:text-purple-400'
-                                onClick={() => setIsRegister(true)}
-                            >Register here</span></p>
-                        }
+
+
+                        <p>Don't have an account? <span
+                            className=' cursor-pointer underline hover:text-purple-400'
+                            onClick={() => console.log('')} >Register here</span></p>
 
 
 
+                        <div className='text-center'>
+                            <p className='mb-4'>Choose an avatar:</p>
+                            <div className='w-full flex flex-row gap-4'>
+                                {isLoading ? <div>loading..</div>
 
-                        <button className='bg-gradient-to-r from-purple-500 to-purple-700 text-white hover:bg-gradient-to-l w-20 rounded-xl hover:bg-opacity-50'
-                            type='submit'>Login</button>
+                                    : avatars?.map((avatar, index) => (
+                                        <div key={index}>
+                                            <img className=" size-10" key={index + 1} src={`http://localhost:5000/avatars/${avatar}`} alt="" />
+                                        </div>
+                                    ))}
+
+                            </div>
+                        </div>
+
+
+
+                        <button className='bg-gradient-to-r from-purple-500 to-purple-700 text-white hover:bg-gradient-to-l h-8 w-20 rounded-xl hover:bg-opacity-50'
+                            type='submit'>Register</button>
                     </div>
                 </form>
 

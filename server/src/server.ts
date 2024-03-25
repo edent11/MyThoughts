@@ -2,7 +2,10 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 
+
 import authRouter from './router/authentication';
+import imagesRouter from './router/images';
+
 import { MONGO_URL } from './helpers/secrets'
 
 const app = express();
@@ -29,3 +32,6 @@ app.listen(PORT, () => {
 
 
 app.use('/', authRouter);
+
+app.use('/', imagesRouter);
+
