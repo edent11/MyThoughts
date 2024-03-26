@@ -1,10 +1,16 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
+import ReactDOM from "react-dom";
+
 import { styled } from '@mui/material/styles';
 import FormGroup from '@mui/material/FormGroup';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { useTheme } from '../contexts/ThemeProvider';
 import { useNavigate } from 'react-router-dom';
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+
+import { useAuth } from '../contexts/UserAuth';
+import { useTheme } from '../contexts/ThemeProvider';
+
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
     width: 62,
@@ -56,57 +62,140 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
 
 const NavBar = () => {
 
+
+    const user = useAuth();
     const theme = useTheme();
-    const navigate = useNavigate();
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isDropDownVisible, setTsDropDownVisible] = useState<Boolean>(false);
+
+
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setTsDropDownVisible(false);
+            }
+        };
+
+        // Attach event listener when component mounts
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Detach event listener when component unmounts
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
 
     return (
         <div
             id="mainContainer"
-            className={`box-border bg-gradient-to-r relative font-signika border-b-2 px-8 shadow-lg border-white
-             ${theme?.isDarkMode() ? 'from-gray-700 to-gray-900' : 'from-purple-700 to-purple-900 '} 
-             w-full flex flex-row justify-between items-center h-16 cursor-pointer
-              text-white`}
-           
-        >
+            className={`box-border  relative font-signika border-b-2 px-8 shadow-lg border-white
+             dark:from-gray-700 dark:to-gray-900 bg-gradient-to-r from-purple-700 to-purple-900 
+             w-full flex flex-row justify-between  h-16 
+              text-white`}>
 
             <div
                 id="LogoText"
-                className={` font-bold text-base flex flex-row items-center gap-6 `}>
+                className={` font-bold text-base flex flex-row gap-6 `}>
 
-                <p className={`rounded-md py-2 px-2 bg-gradient-to-br
-                 ${theme?.isDarkMode() ? 'from-purple-500 to-purple-700' : 'from-blue-900 to-blue-950'} `}> MyMovies </p>
+                <div className='self-center cursor-pointer'>
 
-                <FormGroup>
-                    <FormControlLabel
-                        control={<MaterialUISwitch sx={{ m: 1 }} defaultChecked onChange={() => theme?.toggle()} />}
-                        label=""
-                    />
-                </FormGroup>
+                    <p className={`rounded-md py-2 px-2 bg-gradient-to-br
+                  dark:from-purple-500  dark:to-purple-700 from-blue-900 to-blue-950`}> MyMovies </p>
+
+                </div>
+
+                {
+                    user.isAuthenticated() &&
+                    <div
+
+                        className='rounded space-y-10 relative top-3 self-baseline gap-5 px-2
+                         light:bg-gradient-to-r light:from-blue-900 light:to-blue-950 bg-gradient-to-r from-gray-900 to-blue-950'
+
+                        onClick={() => setTsDropDownVisible(true)}>
+
+
+                        <div className='p-1 flex flex-row items-center gap-6 cursor-pointer'>
+
+                            <img
+                                src={`http://localhost:5000/avatars/${user.getUser()?.avatar}`}
+                                alt="avatar"
+                                className='size-8 ring-2 rounded-full ring-green-200 shadow-xl' />
+                            <p>{user.getUser()?.username}</p>
+
+                            {
+                                isDropDownVisible ? <IoIosArrowUp /> : <IoIosArrowDown />
+                            }
+
+
+                        </div>
+
+
+                        <div
+                            id="dropdown"
+                            ref={containerRef}
+                            className={`z-10  ${isDropDownVisible ? 'block' : 'hidden'}  bg-theme_purple text-white
+                                        divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700`}>
+
+                            <ul className="py-2 text-sm text-whit dark:text-gray-200 " aria-labelledby="dropdownDefaultButton">
+                                <li>
+                                    <a href="#" className="block animate-bounce px-4 cursor-pointer py-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-theme_purple dark:hover:text-white">Dashboard</a>
+                                </li>
+                                <li>
+                                    <a href="#" className="block px-4 py-2 animate-bounce hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-theme_purple dark:hover:text-white">Settings</a>
+                                </li>
+                                <li>
+                                    <a href="#" className="block animate-bounce px-4 py-2 hover:bg-gray-100 dark:hover:bg-theme_purple hover:text-gray-900 dark:hover:text-white">Earnings</a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                        className="block animate-bounce px-4 py-2 hover:bg-gray-100 dark:hover:bg-theme_purple hover:text-gray-900 dark:hover:text-white"
+                                        onClick={
+                                            async () => {
+                                                await user.logout();
+                                            }}
+                                        >Sign out</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                }
+
+
             </div>
-
 
 
             <div
                 id="Navigation"
-                className='relative mr-20'>
+                className='relative mr-20 self-center'>
 
                 <ul className='flex flex-row items-center text-sm gap-6 font-bold '>
-                    <li className={`${theme?.isDarkMode() ? 'bg-purple-600' : 'bg-blue-950'} rounded-sm px-2 py-1 ring-white hover:ring-1`}>
+                    <li className={`dark:bg-purple-600 bg-blue-950 rounded-sm px-2 py-1 ring-white hover:ring-1`}>
                         <a href="/">Home</a>
                     </li>
 
                     <li className=''>
-                        <a href="/login"
-                            className={` no-underline ${theme?.isDarkMode() ? 'hover:text-purple-400 no-underline' : ' hover:underline hover:underline-offset-4 '}`}
-                        >Login</a>
+                        <a href={user.isAuthenticated() ? '/logout' : '/login'}
+                            className={` no-underline dark:hover:text-purple-400  dark:no-underline hover:underline hover:underline-offset-4`}
+                        >{user.isAuthenticated() ? 'Logout' : 'Login'}</a>
                     </li>
 
 
                     <li>
                         <a href="/login"
-                            className={` no-underline ${theme?.isDarkMode() ? 'hover:text-purple-400 no-underline' : ' hover:underline hover:underline-offset-4 '}`}
+                            className={` no-underline dark:hover:text-purple-400  dark:no-underline hover:underline hover:underline-offset-4`}
                         >My</a>
                     </li>
+
+                    <FormGroup>
+                        <FormControlLabel
+                            control={<MaterialUISwitch sx={{ m: 1 }} defaultChecked onChange={() => theme?.toggle()} />}
+                            label=""
+                        />
+                    </FormGroup>
 
                 </ul>
 

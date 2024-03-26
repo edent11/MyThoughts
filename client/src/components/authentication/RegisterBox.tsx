@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import { useTheme } from '../../contexts/ThemeProvider';
 import useSWR, { mutate } from 'swr';
 import { useAuth, RegisterData } from '../../contexts/UserAuth';
 import { useNavigate } from 'react-router-dom';
 
 const UserBox: React.FC = () => {
 
-    const theme = useTheme();
     const navigate = useNavigate();
     const auth = useAuth();
     const [responseMessage, setResponseMessage] = useState('');
 
     const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
     const [selectedAvatar, setSelectedAvatar] = useState<number>(1);
 
     const [registerData, setRegisterData] = useState<RegisterData>({
-        username: '',
+        user: null,
         password: '',
-        avatar: '',
     });
 
     const { data: avatars, isLoading } = useSWR<String[]>('http://localhost:5000/avatars', fetcher);
@@ -59,9 +57,9 @@ const UserBox: React.FC = () => {
 
     return (
         <div id="signIn"
-            className={`rounded-xl font-signika border-regular my-auto m-auto shadow-purple-600 shadow-lg  border-white border-2
+            className={`rounded-xl font-signika border-regular my-auto m-auto shadow-purple-600 shadow-lg border-white border-2
                        w-[600px] bg-gradient-to-br p-1 flex flex-col items-center font-bold
-                       ${theme?.isDarkMode() ? 'from-gray-700 to-gray-800 text-white' : 'from-gray-200 to-gray-300 text-black'}`}>
+                        from-gray-200 to-gray-300 text-black dark:from-gray-700  dark:to-gray-800 dark:text-white`}>
 
 
 
@@ -82,7 +80,7 @@ const UserBox: React.FC = () => {
                             type="text"
                             placeholder='Username'
                             name="username"
-                            value={registerData.username}
+                            value={registerData.user?.username}
                             onChange={handleInputChange}
                             required />
 

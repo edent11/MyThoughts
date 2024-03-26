@@ -1,7 +1,6 @@
 
 import useSWR, { mutate } from 'swr';
 import React, { useEffect, useState } from 'react'
-import { useTheme } from '../../contexts/ThemeProvider';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, LoginData } from '../../contexts/UserAuth';
 
@@ -9,7 +8,7 @@ import { useAuth, LoginData } from '../../contexts/UserAuth';
 
 const LoginBox: React.FC = () => {
 
-    const theme = useTheme();
+
     const auth = useAuth();
     const navigate = useNavigate();
 
@@ -45,8 +44,8 @@ const LoginBox: React.FC = () => {
     return (
         <div id="signIn"
             className={`rounded-xl font-signika border-regular my-auto m-auto shadow-purple-600 shadow-lg  border-white border-2
-                       w-[600px] bg-gradient-to-br p-1 flex flex-col items-center font-bold
-                       ${theme?.isDarkMode() ? 'from-gray-700 to-gray-800 text-white' : 'from-gray-200 to-gray-300 text-black'}`}>
+                       w-[600px] bg-gradient-to-br p-1 flex flex-col items-center font-bold from-gray-200 to-gray-300 text-black
+                      dark:from-gray-700  dark:to-gray-800  dark:text-white `}>
 
             <p className={`bg-gradient-to-r none animate-expand from-indigo-500 via-purple-500 to-purple-700 text-white 
             w-full text-center rounded-xl text-2xl`}>Login</p>

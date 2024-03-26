@@ -1,16 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+
+  darkMode: 'selector',
+
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
+
       fontFamily: {
         signika: ['signika', 'sans-serif'],
       },
       colors: {
         nav_dark: '#2a3038',
         background_dark: '#282c34',
+        theme_purple: '#7C3AED;',
       },
 
       backgroundImage: {
@@ -30,7 +35,7 @@ module.exports = {
         },
         bounce: {
           '0%, 100%': {
-            transform: 'translateY(-25%)',
+            transform: 'translateY(-10%)',
             animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)'
           },
           '50%': {
@@ -55,11 +60,21 @@ module.exports = {
             width: '0'
           },
         },
+
+        'height-expand': {
+          '0%': {
+            height: '0px'
+          },
+          '100%': {
+            height: '150px'
+          },
+        },
       },
       animation: {
         wiggle: 'wiggle 4s ease-in-out',
-        bounce: 'bounce 1s ease-in-out infinite',
+        bounce: 'bounce 1s ease-in',
         expand: 'width-expand 3s ease-in-out',
+        height: 'height-expand 1.5s',
         shrink: 'width-shrink 10s ease-in-out',
       },
     },

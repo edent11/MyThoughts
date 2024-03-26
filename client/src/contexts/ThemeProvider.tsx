@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 
 
 interface ThemeContextType {
@@ -19,7 +20,7 @@ export const useTheme = () => useContext(ThemeContext);
 
 const ThemeProvider: React.FC<Props> = ({ children }) => {
 
-  const [theme, setTheme] = useState<"light" | "dark">('dark');
+  const [theme, setTheme] = useLocalStorage<"light" | "dark">('theme', "dark");
 
   const isDarkMode = () => {
     return theme === 'dark' ? true : false;

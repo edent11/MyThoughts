@@ -14,12 +14,12 @@ function App() {
   const theme = useTheme();
 
   return (
-    <div className="w-full h-full">
+    <div className={`${theme?.isDarkMode() ? 'dark' :''}  w-full h-full`}>
 
       <NavBar />
 
-      <main className={` w-full flex flex-col items-center justify-center
-       text-white bg-gradient-to-l ${theme?.isDarkMode() ? 'from-gray-900 to-gray-800' : 'bg-gray-400'}`}>
+      <main className={`w-full flex flex-col items-center justify-center
+       text-white bg-gradient-to-l bg-gray-400 dark:from-gray-900 dark:to-gray-800`}>
 
         <Routes>
           {/* public routes */}

@@ -1,6 +1,7 @@
-import { rejects } from 'assert';
+
 import React, { createContext, useState, useContext } from 'react';
 import useSWR, { mutate } from 'swr';
+import { useLocalStorage } from 'usehooks-ts';
 
 export interface User {
     username: string;
@@ -13,9 +14,8 @@ export interface LoginData {
 }
 
 export interface RegisterData {
-    username: string;
+    user: User | null;
     password: string;
-    avatar: String;
 }
 
 interface AuthState {
@@ -27,8 +27,9 @@ interface AuthContextType {
     isAuthenticated: () => boolean;
     getUser: () => User | null;
     login: (loginData: LoginData) => null | Promise<boolean | string>;
+    logout: () => null | Promise<boolean>;
     register: (registerData: RegisterData) => null | Promise<boolean | string>;
-    logout: () => void;
+
 
 }
 
@@ -45,7 +46,7 @@ const AuthContext = createContext<AuthContextType>({
     isAuthenticated: () => false,
     login: () => null,
     register: () => null,
-    logout: () => { },
+    logout: () => null,
     getUser: () => null
 });
 
@@ -53,7 +54,7 @@ export const useAuth = () => useContext(AuthContext);
 
 const AuthProvider: React.FC<Props> = ({ children }) => {
 
-    const [authState, setAuthState] = useState<AuthState>(initialAuthState);
+    const [authState, setAuthState] = useLocalStorage<AuthState>("authState", initialAuthState);
 
     const login = (loginData: LoginData): Promise<string | boolean> => {
 
@@ -116,7 +117,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 await response.json().then(userDetails => {
                     setAuthState({
                         isAuthenticated: true,
-                        user: { username: userDetails.username, avatar: userDetails.avatar },
+                        user: { username: userDetails.user.username, avatar: userDetails.user.avatar },
                     });
                 });
                 // Invalidate the cache for the /api/user endpoint
@@ -134,11 +135,18 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
 
 
 
-    const logout = (): void => {
-        setAuthState({
-            isAuthenticated: false,
-            user: null,
-        });
+    const logout = (): Promise<boolean> => {
+
+        return new Promise((resolve) => {
+
+            setAuthState({
+                isAuthenticated: false,
+                user: null,
+            });
+
+            resolve(true);
+        })
+
     };
 
     const getUser = (): User | null => {
