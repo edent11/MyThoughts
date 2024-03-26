@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
+import PrivateRoute from './components/PrivateRoute';
 import logo from './logo.svg';
 import { useTheme } from './contexts/ThemeProvider';
 import Home from './pages/Home';
@@ -21,9 +22,16 @@ function App() {
        text-white bg-gradient-to-l ${theme?.isDarkMode() ? 'from-gray-900 to-gray-800' : 'bg-gray-400'}`}>
 
         <Routes>
+          {/* public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          {/* private routes */}
+          <Route path="/" element={<PrivateRoute />}>
+            <Route path="/account" element={<Home />} />
+          </Route>
+
           <Route path="*" element={<Home />} />
         </Routes>
 

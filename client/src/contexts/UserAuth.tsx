@@ -1,10 +1,21 @@
+import { rejects } from 'assert';
 import React, { createContext, useState, useContext } from 'react';
-
+import useSWR, { mutate } from 'swr';
 
 export interface User {
-    id: string;
-    name: string;
-    email: string;
+    username: string;
+    avatar: string;
+}
+
+export interface LoginData {
+    username: string;
+    password: string;
+}
+
+export interface RegisterData {
+    username: string;
+    password: string;
+    avatar: String;
 }
 
 interface AuthState {
@@ -13,11 +24,12 @@ interface AuthState {
 }
 
 interface AuthContextType {
-    authState: AuthState;
-    getUserID: () => string | null;
-    login: (user: User) => boolean;
+    isAuthenticated: () => boolean;
+    getUser: () => User | null;
+    login: (loginData: LoginData) => null | Promise<boolean | string>;
+    register: (registerData: RegisterData) => null | Promise<boolean | string>;
     logout: () => void;
-    getUserName: () => string | null;
+
 }
 
 const initialAuthState: AuthState = {
@@ -30,11 +42,11 @@ interface Props {
 }
 
 const AuthContext = createContext<AuthContextType>({
-    authState: initialAuthState,
-    login: () => false,
+    isAuthenticated: () => false,
+    login: () => null,
+    register: () => null,
     logout: () => { },
-    getUserName: () => null,
-    getUserID: () => null,
+    getUser: () => null
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -43,38 +55,110 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
 
     const [authState, setAuthState] = useState<AuthState>(initialAuthState);
 
-    const login = (user: User) => {
-        setAuthState({
-            isAuthenticated: true,
-            user: user,
-        });
-        return true;
+    const login = (loginData: LoginData): Promise<string | boolean> => {
+
+        return new Promise(async (resolve, reject) => {
+
+            try {
+                const response = await fetch('http://localhost:5000/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData),
+                });
+
+                if (!response.ok) {
+
+                    // Get the response message
+                    const message = await response.text();
+                    throw new Error(message);
+                }
+
+                await response.json().then(userDetails => {
+                    setAuthState({
+                        isAuthenticated: true,
+                        user: { username: userDetails.username, avatar: userDetails.avatar },
+                    });
+                });
+                // Invalidate the cache for the /api/user endpoint
+                mutate('http://localhost:5000/auth/login');
+                resolve(true);
+
+
+            } catch (error: any) {
+                console.error(error.message);
+                reject(error.message);
+            }
+        })
     };
 
-    const logout = () => {
+    const register = (registerData: RegisterData): Promise<string | boolean> => {
+
+        return new Promise(async (resolve, reject) => {
+
+            try {
+                const response = await fetch('http://localhost:5000/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(registerData),
+                });
+
+                if (!response.ok) {
+
+                    // Get the response message
+                    const message = await response.text();
+                    throw new Error(message);
+                }
+
+                await response.json().then(userDetails => {
+                    setAuthState({
+                        isAuthenticated: true,
+                        user: { username: userDetails.username, avatar: userDetails.avatar },
+                    });
+                });
+                // Invalidate the cache for the /api/user endpoint
+                mutate('http://localhost:5000/auth/login');
+                resolve(true);
+
+
+            } catch (error: any) {
+                console.error(error.message);
+                reject(error.message);
+            }
+        })
+
+    }
+
+
+
+    const logout = (): void => {
         setAuthState({
             isAuthenticated: false,
             user: null,
         });
     };
 
-    const getUserName = () => {
+    const getUser = (): User | null => {
 
         if (authState.user)
-            return authState?.user?.name;
+            return authState?.user;
         return null;
     };
 
-    const getUserID = () => {
+    const isAuthenticated = (): boolean => {
 
-        if (authState.user)
-            return authState?.user?.id;
-        return null;
-
+        return authState.isAuthenticated;
     };
+
+
+
+
     return (
 
-        <AuthContext.Provider value={{ authState, login, logout, getUserName, getUserID }}>
+        <AuthContext.Provider value={{ isAuthenticated, login, register, logout, getUser }}>
             {children}
         </AuthContext.Provider>
     )
