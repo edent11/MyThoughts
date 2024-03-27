@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 
 import authRouter from './router/authentication';
 import imagesRouter from './router/images';
+import thoughtsRouter from './router/thoughts';
 
 
 
@@ -44,6 +45,6 @@ app.listen(PORT, () => {
 
 
 app.use('/', authRouter);
-
 app.use('/', imagesRouter);
+app.use('/', thoughtsRouter);
 

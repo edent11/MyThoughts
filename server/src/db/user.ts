@@ -18,22 +18,26 @@ const userSchema = new mongoose.Schema({
 
 // Define user schema for embedding (excluding password)
 export const embeddedUserSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
+    username: { type: String, required: true },
     avatar: { type: String, required: true },
 });
 
 export const UserModel = mongoose.model('users', userSchema);
 
-export const getUsers = () => UserModel.find();
+export const getUsers = () => UserModel.find({}, (err: Error, data: any) => {
+    if (err) {
+        console.error(err);
+        return;
+    }
+    return data; // All data from the schema
+});
 
 export const getUserByUsername = (username: string) => UserModel.findOne({ username });
 
 export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({ 'authentication.sessionToken': sessionToken }).select('username avatar');
 
 
-
 export const getUserById = (uid: string) => UserModel.findById(uid);
-
 
 export const createUser = (values: Record<string, any>) => new UserModel(values)
     .save().then((user) => user.toObject());

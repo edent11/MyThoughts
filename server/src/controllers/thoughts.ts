@@ -6,7 +6,15 @@ import { getUserBySessionToken } from '../db/user'
 
 export const displayAllThoughts = async (req: express.Request, res: express.Response) => {
 
-    return res.status(200).json(getThoughts()).send()
+    await getThoughts()
+        .then(thoughts => {
+            return res.status(200).json(thoughts).send();
+        })
+        .catch(err => {
+            return res.status(400).send(err);
+        })
+
+
 
 }
 
@@ -21,7 +29,7 @@ export const createNewThought = async (req: express.Request, res: express.Respon
         const userCheck = await getUserBySessionToken(session_token);
 
         if (!userCheck || userCheck?.username != username)
-            throw new Error("Can't valid user");
+            return res.status(400).send('Cannot authenticate user');
 
 
         const newThought = await createThought({

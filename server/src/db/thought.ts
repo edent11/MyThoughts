@@ -2,12 +2,31 @@ import mongoose from "mongoose";
 import { embeddedUserSchema } from "./user";
 
 
+const commentSchema = new mongoose.Schema({
+
+    author: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false,
+        ref: 'users',
+
+    },
+    text: {
+        type: String,
+        required: true
+    },
+
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+
+});
 
 const thoughtSchema = new mongoose.Schema({
 
     user: {
         type: embeddedUserSchema,
-        required: true
+        required: true,
     },
     createdAt: {
         type: Date,
@@ -18,28 +37,18 @@ const thoughtSchema = new mongoose.Schema({
         body: { type: String, required: true },
         imageSource: { type: String, required: false },
     },
-    comments: [{
-        author: {
-            type: embeddedUserSchema
-        },
-        text: {
-            type: String,
-            required: true
-        }
+    comments: [commentSchema],
 
-    }],
     likes: {
         type: Number,
         default: 0
     }
-
-
-
 });
 
 export const ThoughtsModel = mongoose.model('thoughts', thoughtSchema);
 
 export const getThoughts = () => ThoughtsModel.find();
+
 
 export const getThoughtsByUsername = (username: string) => ThoughtsModel.findOne({ 'user.username': username });
 
