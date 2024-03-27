@@ -1,8 +1,17 @@
 import mongoose from "mongoose";
-import { embeddedUserSchema } from "./user";
+import { embeddedUserSchema, User } from "./user";
 
 
-const commentSchema = new mongoose.Schema({
+interface Comment {
+    author: User;
+    text: string;
+    createdAt: Date;
+
+
+}
+
+
+const commentSchema = new mongoose.Schema<Comment>({
 
     author: {
         type: mongoose.Schema.Types.ObjectId,
@@ -49,8 +58,8 @@ export const ThoughtsModel = mongoose.model('thoughts', thoughtSchema);
 
 export const getThoughts = () => ThoughtsModel.find();
 
-
 export const getThoughtsByUsername = (username: string) => ThoughtsModel.findOne({ 'user.username': username });
+
 
 // export const getThoughtByKeyword = (sessionToken: string) => UserModel.findOne({ 'authentication.sessionToken': sessionToken });
 

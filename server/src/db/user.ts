@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 
+export interface User {
+    username: string;
+    avatar: string
+}
 
 
 const userSchema = new mongoose.Schema({
@@ -17,7 +21,7 @@ const userSchema = new mongoose.Schema({
 
 
 // Define user schema for embedding (excluding password)
-export const embeddedUserSchema = new mongoose.Schema({
+export const embeddedUserSchema = new mongoose.Schema<User>({
     username: { type: String, required: true },
     avatar: { type: String, required: true },
 });

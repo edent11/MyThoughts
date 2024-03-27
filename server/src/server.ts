@@ -1,4 +1,5 @@
-import express from 'express';
+
+import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -10,10 +11,13 @@ import thoughtsRouter from './router/thoughts';
 
 
 
+
 dotenv.config();  // Load environment variables from .env file 
 const MONGO_URL = process.env.REACT_APP_MONGO_URL || '';  // Retrieve the environment variable 
 
 const app = express();
+
+
 
 // Enable CORS with options to allow specific origins and headers
 
@@ -32,12 +36,11 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 mongoose.Promise = Promise;
 mongoose.connect(MONGO_URL);
-
 mongoose.connection.on('error', (error) => console.log(error))
 
-app.on("connection", () => {
 
-})
+
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

@@ -1,6 +1,7 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import fs from 'fs';
 import path from 'path';
+import multer from 'multer';
 
 
 const router = express.Router();
@@ -27,6 +28,25 @@ router.get('/avatars', (req, res) => {
         // Send the list of image files to the client
         res.json(imageFiles);
     });
+});
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, 'uploads'));
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+
+// Initialize multer middleware
+const upload = multer({ storage: storage });
+
+// Route to handle file upload
+router.post('/images/upload', upload.single('image'), (req: Request, res: Response) => {
+    // File has been uploaded
+    res.send('File uploaded successfully');
 });
 
 
