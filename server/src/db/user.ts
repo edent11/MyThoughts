@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 
+
+
+
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
     avatar: { type: String, required: true },
     authentication: {
 
@@ -11,15 +14,23 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+
+
+// Define user schema for embedding (excluding password)
+export const embeddedUserSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    avatar: { type: String, required: true },
+});
+
 export const UserModel = mongoose.model('users', userSchema);
 
 export const getUsers = () => UserModel.find();
 
 export const getUserByUsername = (username: string) => UserModel.findOne({ username });
 
+export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({ 'authentication.sessionToken': sessionToken }).select('username avatar');
 
 
-export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({ 'authentication.sessionToken': sessionToken });
 
 export const getUserById = (uid: string) => UserModel.findById(uid);
 

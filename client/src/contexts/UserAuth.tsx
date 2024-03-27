@@ -6,6 +6,7 @@ import { useLocalStorage } from 'usehooks-ts';
 export interface User {
     username: string;
     avatar: string;
+    session_token: string;
 }
 
 export interface LoginData {
@@ -56,17 +57,20 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
 
     const [authState, setAuthState] = useLocalStorage<AuthState>("authState", initialAuthState);
 
-    const login = (loginData: LoginData): Promise<string | boolean> => {
+    const fetchAndSetUser = (async (fetch_url: string, data: LoginData | RegisterData): Promise<string | boolean> => {
 
         return new Promise(async (resolve, reject) => {
 
+
             try {
-                const response = await fetch('http://localhost:5000/auth/login', {
+                const response = await fetch(fetch_url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(loginData),
+                    mode: 'cors',
+                    body: JSON.stringify(data),
+                    credentials: 'include',
                 });
 
                 if (!response.ok) {
@@ -76,14 +80,24 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                     throw new Error(message);
                 }
 
+                const session_token = response.headers.get('session_token')
+            
+
+
+                if (!session_token) {
+                    console.log(session_token)
+                    throw new Error("Couldn't get session token");
+                }
+
+
                 await response.json().then(userDetails => {
                     setAuthState({
                         isAuthenticated: true,
-                        user: { username: userDetails.username, avatar: userDetails.avatar },
+                        user: { username: userDetails.username, avatar: userDetails.avatar, session_token: session_token },
                     });
                 });
                 // Invalidate the cache for the /api/user endpoint
-                mutate('http://localhost:5000/auth/login');
+                mutate(fetch_url);
                 resolve(true);
 
 
@@ -92,48 +106,19 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 reject(error.message);
             }
         })
+
+    })
+
+    const login = (loginData: LoginData): Promise<string | boolean> => {
+
+        return fetchAndSetUser('http://localhost:5000/auth/login', loginData)
     };
 
     const register = (registerData: RegisterData): Promise<string | boolean> => {
 
-        return new Promise(async (resolve, reject) => {
-
-            try {
-                const response = await fetch('http://localhost:5000/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(registerData),
-                });
-
-                if (!response.ok) {
-
-                    // Get the response message
-                    const message = await response.text();
-                    throw new Error(message);
-                }
-
-                await response.json().then(userDetails => {
-                    setAuthState({
-                        isAuthenticated: true,
-                        user: { username: userDetails.user.username, avatar: userDetails.user.avatar },
-                    });
-                });
-                // Invalidate the cache for the /api/user endpoint
-                mutate('http://localhost:5000/auth/login');
-                resolve(true);
-
-
-            } catch (error: any) {
-                console.error(error.message);
-                reject(error.message);
-            }
-        })
+        return fetchAndSetUser('http://localhost:5000/auth/register', registerData)
 
     }
-
-
 
     const logout = (): Promise<boolean> => {
 

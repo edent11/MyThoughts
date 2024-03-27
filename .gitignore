@@ -12,7 +12,7 @@
 **/build/
 
 # secrets
-secrets.ts
+.env
 
 # misc
 .DS_Store

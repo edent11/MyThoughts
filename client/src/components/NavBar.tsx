@@ -64,6 +64,7 @@ const NavBar = () => {
 
 
     const user = useAuth();
+    const navigate = useNavigate();
     const theme = useTheme();
     const containerRef = useRef<HTMLDivElement>(null);
     const [isDropDownVisible, setTsDropDownVisible] = useState<Boolean>(false);
@@ -102,7 +103,7 @@ const NavBar = () => {
                 <div className='self-center cursor-pointer'>
 
                     <p className={`rounded-md py-2 px-2 bg-gradient-to-br
-                  dark:from-purple-500  dark:to-purple-700 from-blue-900 to-blue-950`}> MyMovies </p>
+                  dark:from-purple-500  dark:to-purple-700 from-blue-900 to-blue-950`}> MyThoughts </p>
 
                 </div>
 
@@ -136,9 +137,9 @@ const NavBar = () => {
                             id="dropdown"
                             ref={containerRef}
                             className={`z-10  ${isDropDownVisible ? 'block' : 'hidden'}  bg-theme_purple text-white
-                                        divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700`}>
+                                        divide-y divide-gray-900 gap-10 rounded-lg shadow w-44 dark:bg-gray-700`}>
 
-                            <ul className="py-2 text-sm text-whit dark:text-gray-200 " aria-labelledby="dropdownDefaultButton">
+                            <ul className="py-2 text-sm text-whit dark:text-gray-200 divide-gray-200 divide-y-[0.1rem]" aria-labelledby="dropdownDefaultButton">
                                 <li>
                                     <a href="#" className="block animate-bounce px-4 cursor-pointer py-2 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-theme_purple dark:hover:text-white">Dashboard</a>
                                 </li>
@@ -149,13 +150,15 @@ const NavBar = () => {
                                     <a href="#" className="block animate-bounce px-4 py-2 hover:bg-gray-100 dark:hover:bg-theme_purple hover:text-gray-900 dark:hover:text-white">Earnings</a>
                                 </li>
                                 <li>
-                                    <a href="#"
-                                        className="block animate-bounce px-4 py-2 hover:bg-gray-100 dark:hover:bg-theme_purple hover:text-gray-900 dark:hover:text-white"
+                                    <p
+                                        className="block cursor-pointer animate-bounce px-4 py-2 hover:bg-gray-100 dark:hover:bg-theme_purple hover:text-gray-900 dark:hover:text-white"
                                         onClick={
                                             async () => {
                                                 await user.logout();
+                                                navigate('/home');
+                                                window.location.reload();
                                             }}
-                                        >Sign out</a>
+                                    >Sign out</p>
                                 </li>
                             </ul>
                         </div>

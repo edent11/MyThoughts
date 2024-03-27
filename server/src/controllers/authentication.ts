@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { createUser, getUserByUsername } from '../db/users'
+import { createUser, getUserByUsername } from '../db/user'
 import { authentication, random } from '../helpers/helpers'
 
 export const register = async (req: express.Request, res: express.Response) => {
@@ -30,7 +30,9 @@ export const register = async (req: express.Request, res: express.Response) => {
             }
         });
 
-        return res.status(200).json(user);
+        await login(req, res);
+
+        return res;
 
 
     } catch (error) {
@@ -65,9 +67,15 @@ export const login = async (req: express.Request, res: express.Response) => {
 
         await user.save();
 
-        res.cookie('eden', user.authentication.sessionToken, { domain: 'localhost', path: '/' });
+        //header
+        console.log(user.authentication.sessionToken);
+        
+        res.set('session_token', user.authentication.sessionToken);
 
-        return res.status(200).json(user).end();
+        //cookie for session
+        res.cookie('session_token', user.authentication.sessionToken);
+
+        return res.status(200).json(user).send()
 
     } catch (error) {
         console.log(error);
