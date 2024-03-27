@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { createThought, getThoughtById, getThoughts, getThoughtsByUsername } from '../db/thought'
+import { createThought, getThoughtById, getThoughts, getThoughtsByUsername, getAllThoughtsID } from '../db/thought'
 import { getUserBySessionToken } from '../db/user'
 
 
@@ -18,25 +18,47 @@ export const displayAllThoughts = async (req: express.Request, res: express.Resp
 
 }
 
+export const getAllThoughts = async (req: express.Request, res: express.Response) => {
+
+    const thoughts = await getAllThoughtsID()
+        .then(thoughts => {
+            return thoughts;
+        });
+
+    return res.status(200).json(thoughts);
+
+}
+
+export const getThoughtByID = async (req: express.Request, res: express.Response) => {
+
+    const thoughtID = req.params.thoughtID;
+    const thought = await getThoughtById(thoughtID)
+        .then(thought => {
+            return thought;
+        });
+
+    return res.status(200).json(thought);
+
+}
+
 export const createNewThought = async (req: express.Request, res: express.Response) => {
 
     try {
         const { username, content, session_token } = req.body;
 
         if (!username || !content || !session_token)
-            throw new Error(`Failed getting thought's data`);
+            return res.status(400).send(`Failed getting thought's data`);
 
         const userCheck = await getUserBySessionToken(session_token);
 
         if (!userCheck || userCheck?.username != username)
-            throw new Error('Cannot authenticate user');
+            return res.status(400).send('Cannot authenticate user');
 
 
         const newThought = await createThought({
             user: userCheck,
             content:
             {
-                header: content.header,
                 body: content.body,
                 imageSource: content.imageSource
             }
@@ -58,12 +80,12 @@ export const addLike = async (req: express.Request, res: express.Response) => {
         const { thoughtID } = req.body;
 
         if (!thoughtID)
-            throw new Error(`Failed getting  data`);
+            return res.status(400).send(`Failed getting  data`);
 
         const thought = await getThoughtById(thoughtID);
 
         if (!thought)
-            throw new Error(`Could not find requested thought`);
+            return res.status(400).send(`Could not find requested thought`);
 
         thought.likes = thought.likes + 1;
 
@@ -85,12 +107,12 @@ export const unLike = async (req: express.Request, res: express.Response) => {
         const { thoughtID } = req.body;
 
         if (!thoughtID)
-            throw new Error(`Failed getting  data`);
+            return res.status(400).send(`Failed getting  data`);
 
         const thought = await getThoughtById(thoughtID);
 
         if (!thought)
-            throw new Error(`Could not find requested thought`);
+            return res.status(400).send(`Could not find requested thought`);
 
         thought.likes = thought.likes - 1;
 
@@ -113,19 +135,18 @@ export const addComment = async (req: express.Request, res: express.Response) =>
         const { thoughtID, session_token, comment } = req.body;
 
         if (!thoughtID || !comment || !session_token)
-            throw new Error(`Failed getting data`);
+            return res.status(400).send(`Failed getting data`);
 
         const thought = await getThoughtById(thoughtID);
 
         if (!thought)
-            throw new Error(`Could not find requested thought`);
-        console.log("1");
+            return res.status(400).send(`Could not find requested thought`);
 
         const user = await getUserBySessionToken(session_token);
 
         if (!user)
-            throw new Error(`Could not authenticate user`);
-        console.log("1");
+            return res.status(400).send(`Could not authenticate user`);
+
         thought.comments.push({
             author: user,
             text: comment

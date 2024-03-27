@@ -42,7 +42,6 @@ const thoughtSchema = new mongoose.Schema({
         default: Date.now
     },
     content: {
-        header: { type: String, required: true },
         body: { type: String, required: true },
         imageSource: { type: String, required: false },
     },
@@ -57,6 +56,8 @@ const thoughtSchema = new mongoose.Schema({
 export const ThoughtsModel = mongoose.model('thoughts', thoughtSchema);
 
 export const getThoughts = () => ThoughtsModel.find();
+
+export const getAllThoughtsID = () => ThoughtsModel.find().select('_id');
 
 export const getThoughtsByUsername = (username: string) => ThoughtsModel.findOne({ 'user.username': username });
 

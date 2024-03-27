@@ -10,13 +10,13 @@ export const register = async (req: express.Request, res: express.Response) => {
         const { username, password, avatar } = req.body;
 
         if (!username || !password)
-            throw new Error('No username or password provided');
+            return res.status(400).send('No username or password provided');
 
         const existingUser = await getUserByUsername(username);
 
         if (existingUser) {
 
-            throw new Error('User already exists');
+            return res.status(400).send('User already exists');
         }
 
         const salt = random();
@@ -48,19 +48,19 @@ export const login = async (req: express.Request, res: express.Response) => {
         const { username, password } = req.body;
 
         if (!username || !password)
-            throw new Error('No username or password was provided');
+            return res.status(400).send('No username or password was provided');
 
         const user = await getUserByUsername(username).select('+authentication.salt +authentication.password');
 
         if (!user || !user.authentication) {
-            throw new Error('User is not exist');
+            return res.status(400).send('User is not exist');
         }
 
 
         const expectedHash = authentication(user.authentication.salt, password);
 
         if (user.authentication.password != expectedHash)
-            throw new Error("Password isn't correct");
+            return res.status(400).send("Password isn't correct");
 
         const salt = random();
 
