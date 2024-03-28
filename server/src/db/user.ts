@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 
 
@@ -20,31 +21,32 @@ const userSchema = new mongoose.Schema({
 
 
 
-// Define user schema for embedding (excluding password)
-export const embeddedUserSchema = new mongoose.Schema<User>({
-    username: { type: String, required: true },
-    avatar: { type: String, required: true },
-});
-
 export const UserModel = mongoose.model('users', userSchema);
 
-export const getUsers = () => UserModel.find({}, (err: Error, data: any) => {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    return data; // All data from the schema
-});
+export const getUsers = () => UserModel.find();
+
 
 export const getUserByUsername = (username: string) => UserModel.findOne({ username });
 
 export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({ 'authentication.sessionToken': sessionToken }).select('username avatar');
+
+// export const getUsersIds = (userIds: ObjectId[]) => UserModel.find({ _id: { $in: userIds as string[] } })
+//     .then(users => {
+//         const userMap: Record<string, User> = {};
+//         users.forEach(user => {
+//             userMap[user._id.toString()] = user;
+//         });
+
+//         return userMap;
+
+//     });
 
 
 export const getUserById = (uid: string) => UserModel.findById(uid);
 
 export const createUser = (values: Record<string, any>) => new UserModel(values)
     .save().then((user) => user.toObject());
+
 
 
 export const deleteUserById = (uid: string) => UserModel.findOneAndDelete({ _id: uid });

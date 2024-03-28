@@ -1,7 +1,8 @@
 import express from 'express'
 
-import { createThought, getThoughtById, getThoughts, getLikes, getThoughtsByUsername, getComments, getCommentsNumber } from '../db/thought'
+import { createThought, getThoughtById, getThoughts, getLikes, getThoughtsByUsername, getComments, addCommentToThought, getCommentsNumber, createComment } from '../db/thought'
 import { getUserBySessionToken } from '../db/user'
+import { ObjectId } from 'mongoose';
 
 
 //wit
@@ -67,14 +68,22 @@ export const getCommentsLength = async (req: express.Request, res: express.Respo
 
 export const getAllComments = async (req: express.Request, res: express.Response) => {
 
-    const thoughtID = req.params.thoughtID;
-    const comments = await getComments(thoughtID)
-        .then(data => {
-            return data;
-        });
 
-    return res.status(200).json(comments);
+    try {
+        const thoughtID = req.params.thoughtID;
+        const comments = await getComments(thoughtID);
+        if (!comments)
+            throw new Error("Can't find comments");
+
+        return res.status(200).json(comments);
+    }
+
+    catch (error) {
+        console.log(error);
+    }
 }
+
+
 
 
 export const createNewThought = async (req: express.Request, res: express.Response) => {
@@ -92,7 +101,7 @@ export const createNewThought = async (req: express.Request, res: express.Respon
 
 
         const newThought = await createThought({
-            user: userCheck,
+            user: userCheck._id,
             content:
             {
                 body: content.body,
@@ -103,8 +112,7 @@ export const createNewThought = async (req: express.Request, res: express.Respon
         return res.status(200).json(newThought).send();
 
     } catch (error) {
-        if (error instanceof Error)
-            return res.status(400).send(error.message);
+        console.log(error);
     }
 
 }
@@ -131,8 +139,7 @@ export const addLike = async (req: express.Request, res: express.Response) => {
 
     }
     catch (err) {
-        if (err instanceof Error)
-            return res.status(400).send(err.message);
+        console.log(err);
     }
 }
 
@@ -161,8 +168,7 @@ export const unLike = async (req: express.Request, res: express.Response) => {
 
     }
     catch (err) {
-        if (err instanceof Error)
-            return res.status(400).send(err.message);
+        console.log(err);
     }
 }
 
@@ -187,20 +193,19 @@ export const addComment = async (req: express.Request, res: express.Response) =>
         if (!user)
             return res.status(400).send(`Could not authenticate user`);
 
-        thought.comments.push({
-            author: user,
+        const comment = await createComment({
+            user: user._id,
             text: text,
-            createdAt: Date.now()
-        });
+            created_at: Date.now()
+        })
 
-        thought.save();
+        const newComment = await addCommentToThought(thought._id, comment._id);
 
-        return res.status(200).send(thought);
+        return res.status(200).send(newComment);
 
     }
     catch (err) {
-        if (err instanceof Error)
-            return res.status(400).send(err.message);
+        console.log(err);
 
     }
 }

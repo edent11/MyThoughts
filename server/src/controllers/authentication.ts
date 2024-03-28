@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { createUser, getUserByUsername } from '../db/user'
+import { createUser, getUserByUsername, getUsers } from '../db/user'
 import { authentication, random } from '../helpers/helpers'
 
 export const register = async (req: express.Request, res: express.Response) => {
@@ -83,4 +83,20 @@ export const login = async (req: express.Request, res: express.Response) => {
             return res.status(400).send(error.message);
     }
 
-} 
+}
+
+export const getAllUsers = async (req: express.Request, res: express.Response) => {
+
+    try {
+
+        const usersList = await getUsers()
+            .then(users => { return users })
+            .catch(error => { throw new Error(error.message) });
+
+        return res.status(400).json(usersList).send();
+    }
+    catch (error) {
+        if (error instanceof Error)
+            return res.status(400).send(error.message);
+    }
+}

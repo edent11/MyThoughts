@@ -56,8 +56,6 @@ const LikesContainer: React.FC<Props> = ({ thoughtID }) => {
                         showComments && 
                         (<Comments thoughtID={thoughtID} />)
                     }
-
-
                 </div>
             </div>
 

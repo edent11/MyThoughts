@@ -29,6 +29,7 @@ const Thought: React.FC<Props> = ({ thought }) => {
 
     const [isLiked, setIsLiked] = useState<Boolean>(false);
 
+
     const updateLikes = () => {
         const operation = !isLiked ? 'addLike' : 'unLike';
         fetch(`http://localhost:5000/thoughts/${thought._id}/${operation}`, {
@@ -64,11 +65,13 @@ const Thought: React.FC<Props> = ({ thought }) => {
                         {
                             isLiked ?
                                 <FaHeart size={20} color='red' className='relative left-[2px] animate-ping_slow' onClick={() => {
-                                    setIsLiked(false)
+                                    setIsLiked(false);
+                                    updateLikes();
                                 }} />
                                 :
                                 <CiHeart size={27} color='red' className='duration-75 animate-bounce' onClick={() => {
-                                    setIsLiked(true)
+                                    setIsLiked(true);
+                                    updateLikes();
 
                                 }} />
                         }
