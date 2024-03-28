@@ -1,13 +1,12 @@
 import mongoose from "mongoose";
 import { embeddedUserSchema, User } from "./user";
+import { ObjectId } from "mongodb";
 
 
 interface Comment {
     author: User;
     text: string;
     createdAt: Date;
-
-
 }
 
 
@@ -53,11 +52,37 @@ const thoughtSchema = new mongoose.Schema({
     }
 });
 
+
+
 export const ThoughtsModel = mongoose.model('thoughts', thoughtSchema);
 
-export const getThoughts = () => ThoughtsModel.find();
+export const getThoughts = () => ThoughtsModel.find().select('_id user createdAt content');
+export const getThoughtLikes = (thoughtID: string) => ThoughtsModel.findById(thoughtID).select('likes');
+export const getCommentsNumber = (thoughtID: string) => ThoughtsModel.findById(thoughtID).then(thought => {
 
-export const getAllThoughtsID = () => ThoughtsModel.find().select('_id');
+    if (thought)
+        return thought?.comments.length;
+
+    throw new Error('Cant find thought');
+}).catch(error => console.log(error));
+
+export const getLikes = (thoughtID: string) => ThoughtsModel.findById(thoughtID).then(thought => {
+
+    if (thought)
+        return thought?.likes;
+
+    throw new Error('Cant find thought');
+}).catch(error => console.log(error));
+
+export const getComments = (thoughtID: string) => ThoughtsModel.findById(thoughtID).then(thought => {
+
+    if (thought)
+        return thought?.comments;
+
+    throw new Error('Cant find thought');
+}).catch(error => console.log(error));
+
+// export const getAllThoughtsID = () => ThoughtsModel.find().select('_id');
 
 export const getThoughtsByUsername = (username: string) => ThoughtsModel.findOne({ 'user.username': username });
 

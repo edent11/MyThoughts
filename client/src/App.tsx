@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute from './components/authentication/PrivateRoute';
 import logo from './logo.svg';
 import { useTheme } from './contexts/ThemeProvider';
 import Home from './pages/Home';
@@ -14,7 +14,7 @@ function App() {
   const theme = useTheme();
 
   return (
-    <div className={`${theme?.isDarkMode() ? 'dark' :''}  w-full h-full`}>
+    <div className={`${theme?.isDarkMode() ? 'dark' : ''}  w-full h-full`}>
 
       <NavBar />
 
