@@ -2,9 +2,10 @@ import React, { useEffect, useState, useReducer } from 'react'
 
 import { CiHeart } from "react-icons/ci";
 import { FaHeart, FaCommentAlt } from "react-icons/fa";
-import { User } from "../../contexts/UserAuth";
+import { User, useAuth } from "../../contexts/UserAuth";
 import LikesContainer from './LikesContainer';
 import Comments from './CommentsList'
+import useSWR, { mutate } from 'swr';
 
 
 interface Props {
@@ -27,14 +28,36 @@ export interface ThoughtType {
 
 const Thought: React.FC<Props> = ({ thought }) => {
 
-    const [isLiked, setIsLiked] = useState<Boolean>(false);
+    const [isLiked, setIsLiked] = useState<Boolean | null>(null);
+
+    const user = useAuth();
+
+    const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+    const { data } = useSWR<boolean>(`http://localhost:5000/thoughts/${thought._id}/isUserLiked`, fetcher);
+
+    if (data && isLiked == null) {
+        console.log(data);
+        setIsLiked(data);
+    }
+
 
 
     const updateLikes = () => {
-        const operation = !isLiked ? 'addLike' : 'unLike';
-        fetch(`http://localhost:5000/thoughts/${thought._id}/${operation}`, {
-            method: 'POST',
-        });
+        try {
+            console.log('first')
+            const formData = new FormData();
+            formData.append('session_token', `${user.getUser()?.session_token}`);
+            const operation = !isLiked ? 'addLike' : 'unLike';
+            fetch(`http://localhost:5000/thoughts/${thought._id}/${operation}`, {
+                method: 'POST',
+                body: formData
+            })
+        }
+
+        catch (err) {
+            console.log(err)
+        }
 
     }
 

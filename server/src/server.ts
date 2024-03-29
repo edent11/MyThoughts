@@ -35,7 +35,7 @@ const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
 mongoose.Promise = Promise;
-mongoose.connect(MONGO_URL);
+mongoose.connect(MONGO_URL).then(() => console.log("connected to MongoDB"));
 mongoose.connection.on('error', (error) => console.log(error))
 
 

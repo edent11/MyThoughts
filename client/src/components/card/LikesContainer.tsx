@@ -28,7 +28,7 @@ const LikesContainer: React.FC<Props> = ({ thoughtID }) => {
     const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
     const { data: likes } = useSWR<number>(`http://localhost:5000/thoughts/${thoughtID}/likes`, fetcher);
-    const { data: commentsNumber } = useSWR<number>(`http://localhost:5000/thoughts/${thoughtID}/commentsLength`, fetcher);
+    const { data: commentsLength } = useSWR<number>(`http://localhost:5000/thoughts/${thoughtID}/commentsLength`, fetcher);
 
 
     return (
@@ -43,7 +43,7 @@ const LikesContainer: React.FC<Props> = ({ thoughtID }) => {
                         |
                     </div>
                     <div className='flex flex-row items-center gap-2 cursor-pointer' onClick={() => setShowComments(prevState => !prevState)}>
-                        {commentsNumber}
+                        {commentsLength}
                         <FaCommentAlt size={14} className='' />
 
 
@@ -53,7 +53,7 @@ const LikesContainer: React.FC<Props> = ({ thoughtID }) => {
                 </div>
                 <div>
                     {
-                        showComments && 
+                        showComments &&
                         (<Comments thoughtID={thoughtID} />)
                     }
                 </div>

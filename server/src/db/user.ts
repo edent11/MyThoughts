@@ -28,7 +28,7 @@ export const getUsers = () => UserModel.find();
 
 export const getUserByUsername = (username: string) => UserModel.findOne({ username });
 
-export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({ 'authentication.sessionToken': sessionToken }).select('username avatar');
+export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({ 'authentication.sessionToken': sessionToken });
 
 // export const getUsersIds = (userIds: ObjectId[]) => UserModel.find({ _id: { $in: userIds as string[] } })
 //     .then(users => {

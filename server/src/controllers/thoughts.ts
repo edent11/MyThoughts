@@ -1,8 +1,9 @@
 import express from 'express'
 
-import { createThought, getThoughtById, getThoughts, getLikes, getThoughtsByUsername, getComments, addCommentToThought, getCommentsNumber, createComment } from '../db/thought'
+import { createThought, getThoughtById, getThoughts, getLikesByThoughtID, isUserLiked, getComments, addCommentToThought, unLike, getCommentsNumber, createComment } from '../db/thought'
 import { getUserBySessionToken } from '../db/user'
-import { ObjectId } from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
+import { CLIENT_RENEG_WINDOW } from 'tls';
 
 
 //wit
@@ -16,19 +17,44 @@ export const allThoughtsWithoutLikes = async (req: express.Request, res: express
     return res.status(200).json(thoughts);
 
 
+
+}
+
+export const isUserLikedThought = async (req: express.Request, res: express.Response) => {
+
+    try {
+        const thoughtID = req.params.thoughtID;
+        const session_token = req.body.session_token;
+
+        const user = await getUserBySessionToken(session_token);
+
+        if (!user)
+            throw new Error("Cant get user");
+
+
+        const likes = await isUserLiked(thoughtID, user.id);
+        return res.status(200).send(likes ? true : false);
+    }
+    catch (err) {
+        console.log('error')
+    }
+
+
+
 }
 
 export const getThoughtLikesByID = async (req: express.Request, res: express.Response) => {
 
+    try {
+        const thoughtID = req.params.thoughtID;
 
-    const thoughtID = req.params.thoughtID;
+        const likes = await getLikesByThoughtID(thoughtID);
 
-    const likes = await getLikes(thoughtID)
-        .then(data => {
-            return data;
-        });
-    return res.status(200).json(likes);
-
+        return res.status(200).json(likes[0].likesCount);
+    }
+    catch (err) {
+        console.log('error')
+    }
 
 }
 
@@ -122,49 +148,56 @@ export const addLike = async (req: express.Request, res: express.Response) => {
     try {
 
         const thoughtID = req.params.thoughtID;
+        const session_token = req.body.session_token;
 
-        if (!thoughtID)
+        const user = await getUserBySessionToken(session_token);
+
+        if (!thoughtID || !user)
             return res.status(400).send(`Failed getting  data`);
 
         const thought = await getThoughtById(thoughtID);
 
+
         if (!thought)
             return res.status(400).send(`Could not find requested thought`);
 
-        thought.likes = thought.likes + 1;
 
-        thought.save();
+        thought.likes.push(user.id);
+
+
+
+        await thought.save().catch(e => console.log(e));
 
         return res.status(200).send("Like was added successfully");
 
     }
-    catch (err) {
-        console.log(err);
+    catch (error) {
+        console.error('Error caught:', error); // Log the entire error object
+        // res.status(500).send('Internal Server Error');
     }
 }
 
 
 
 
-export const unLike = async (req: express.Request, res: express.Response) => {
+export const makeUnLike = async (req: express.Request, res: express.Response) => {
 
     try {
 
         const thoughtID = req.params.thoughtID;
+        const session_token = req.body.session_token;
 
-        if (!thoughtID)
-            return res.status(400).send(`Failed getting  data`);
+        if (!thoughtID || !session_token)
+            return res.status(400).send(`Failed getting data`);
 
         const thought = await getThoughtById(thoughtID);
+        const user = await getUserBySessionToken(session_token);
 
-        if (!thought)
+        if (!thought || !user)
             return res.status(400).send(`Could not find requested thought`);
 
-        thought.likes = thought.likes - 1;
-
-        thought.save();
-
-        return res.status(200).send("Like was added successfully");
+        await unLike(thought._id, user._id);
+        return res.status(200).send(thought);
 
     }
     catch (err) {
