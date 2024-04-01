@@ -1,26 +1,25 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import NavBar from './components/NavBar';
-import PrivateRoute from './components/authentication/PrivateRoute';
-import logo from './logo.svg';
-import { useTheme } from './contexts/ThemeProvider';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import './App.css';
+import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import NavBar from './components/NavBar'
+import PrivateRoute from './components/authentication/PrivateRoute'
+import logo from './logo.svg'
+import { useTheme } from './contexts/ThemeProvider'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import './App.css'
 
 function App() {
-
-  const theme = useTheme();
+  const theme = useTheme()
 
   return (
     <div className={`${theme?.isDarkMode() ? 'dark' : ''}  w-full h-full`}>
-
       <NavBar />
 
-      <main className={`w-full flex flex-col items-center justify-center
-       text-white bg-gradient-to-l bg-gray-400 dark:from-gray-900 dark:to-gray-800`}>
-
+      <main
+        className={`w-full flex flex-col items-center justify-center
+       text-white bg-gradient-to-l bg-gray-400 dark:from-gray-900 dark:to-gray-800`}
+      >
         <Routes>
           {/* public routes */}
           <Route path="/" element={<Home />} />
@@ -34,10 +33,9 @@ function App() {
 
           <Route path="*" element={<Home />} />
         </Routes>
-
       </main>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

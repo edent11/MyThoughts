@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { createThought, getThoughtById, getThoughts, getLikesByThoughtID, isUserLiked, getComments, addCommentToThought, unLike, getCommentsNumber, createComment } from '../db/thought'
+import { createThought, getThoughtById, getThoughts, getLikesByThoughtID, isUserLiked, getComments, addCommentToThought, unLike, getCommentsNumber, createComment, addUserLike } from '../db/thought'
 import { getUserBySessionToken } from '../db/user'
 import mongoose, { ObjectId } from 'mongoose';
 import { CLIENT_RENEG_WINDOW } from 'tls';
@@ -26,17 +26,22 @@ export const isUserLikedThought = async (req: express.Request, res: express.Resp
         const thoughtID = req.params.thoughtID;
         const session_token = req.body.session_token;
 
+        if (!session_token || !thoughtID)
+            throw new Error("Cant get session_token or thoughtID");
+
         const user = await getUserBySessionToken(session_token);
 
         if (!user)
             throw new Error("Cant get user");
 
+        console.log(session_token);
 
         const likes = await isUserLiked(thoughtID, user.id);
+
         return res.status(200).send(likes ? true : false);
     }
     catch (err) {
-        console.log('error')
+        return res.status(400).send(err);
     }
 
 
@@ -162,11 +167,8 @@ export const addLike = async (req: express.Request, res: express.Response) => {
             return res.status(400).send(`Could not find requested thought`);
 
 
-        thought.likes.push(user.id);
 
-
-
-        await thought.save().catch(e => console.log(e));
+        await addUserLike(user._id, thought.id);
 
         return res.status(200).send("Like was added successfully");
 
@@ -197,7 +199,7 @@ export const makeUnLike = async (req: express.Request, res: express.Response) =>
             return res.status(400).send(`Could not find requested thought`);
 
         await unLike(thought._id, user._id);
-        return res.status(200).send(thought);
+        return res.status(200).send("Unliked Successfully");
 
     }
     catch (err) {
@@ -214,7 +216,7 @@ export const addComment = async (req: express.Request, res: express.Response) =>
         const thoughtID = req.params.thoughtID;
 
         if (!thoughtID || !text || !session_token)
-            return res.status(400).send(`Failed getting data`);
+            return res.status(400).send(`Failed getting data`)
 
         const thought = await getThoughtById(thoughtID);
 

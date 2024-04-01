@@ -3,7 +3,7 @@ import ThoughtsList from '../components/ThoughtsList'
 
 const Home = () => {
   return (
-    <div className='dark:bg-gray-900 h-[95vw]'>
+    <div className="dark:bg-gray-900 h-[95vw]">
       <ThoughtsList />
     </div>
   )

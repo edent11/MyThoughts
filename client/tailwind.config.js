@@ -2,6 +2,7 @@
 module.exports = {
 
   darkMode: 'selector',
+  plugins: ["prettier-plugin-tailwindcss"],
 
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",

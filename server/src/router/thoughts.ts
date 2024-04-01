@@ -17,7 +17,7 @@ router.post('/thoughts/:thoughtID/unLike', makeUnLike);
 router.post('/thoughts/:thoughtID/addComment', addComment);
 router.get('/thoughts/:thoughtID/comments', getAllComments);
 router.get('/thoughts/:thoughtID/commentsLength', getCommentsLength);
-router.get('/thoughts/:thoughtID/isUserLiked', isUserLikedThought);
+router.post('/thoughts/:thoughtID/isUserLiked', isUserLikedThought);
 
 
 

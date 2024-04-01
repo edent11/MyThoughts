@@ -132,7 +132,7 @@ export const getThoughts = () => ThoughtsModel.find().populate('user');
 
 
 
-export const isUserLiked = (thoughtID: string, userID: string) => ThoughtsModel.findOne({ _id: thoughtID, likes: userID }).select('_id');
+export const isUserLiked = (thoughtID: string, userID: string) => ThoughtsModel.findOne({ _id: thoughtID, likes: userID });
 
 export const getCommentsNumber = (thoughtID: string) => ThoughtsModel.findById(thoughtID).then(thought => {
 
@@ -151,12 +151,20 @@ export const getLikesByThoughtID = (thoughtID: string) => ThoughtsModel.aggregat
     }
 
 ])
-export const addLike = (userID: string) => ThoughtsModel.find({ likes: { $in: [userID] } }).select('_id');
+export const addUserLike = (userID: ObjectId, thoughtID: string) => ThoughtsModel.updateOne({ _id: thoughtID }, // Match the thought by its ID
+    { $addToSet: { likes: userID } }).then(result => {
 
-export const unLike = (thoughtID: ObjectId, userID: ObjectId) => ThoughtsModel.updateOne({ _id: thoughtID, likes: userID }, // Match the post by its ID
+        if (result.modifiedCount == 0)
+            throw new Error('Could not add like');
+
+    });
+
+
+export const unLike = (thoughtID: ObjectId, userID: ObjectId) => ThoughtsModel.updateOne({ _id: thoughtID }, // Match the post by its ID
     { $pull: { likes: userID } })
     .then(result => {
-        console.log(`${result.modifiedCount} thought(s) updated`);
+        if (result.modifiedCount == 0)
+            throw new Error('Could not make unlike')
     })
 
 export const getComments = (thoughtID: string) => ThoughtsModel.findById(thoughtID).populate('comments').then(thought => {
@@ -169,15 +177,15 @@ export const getComments = (thoughtID: string) => ThoughtsModel.findById(thought
 
 }).catch(error => console.log(error));
 
-export const isUserLikedThought = (thoughtID: string, userID: string) => ThoughtsModel.findById(thoughtID).select('likes').then(thought => {
+// export const isUserLikedThought = (thoughtID: string, userID: string) => ThoughtsModel.findById(thoughtID).select('likes').then(thought => {
 
-    const populatedComments = CommentModel.populate(thought?.comments, { path: 'user' }).then(comments => {
-        return comments;
-    });
+//     const populatedComments = CommentModel.populate(thought?.comments, { path: 'user' }).then(comments => {
+//         return comments;
+//     });
 
-    return populatedComments;
+//     return populatedComments;
 
-}).catch(error => console.log(error));
+// }).catch(error => console.log(error));
 
 
 
