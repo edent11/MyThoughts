@@ -72,29 +72,21 @@ const thoughtSchema = new mongoose.Schema<ThoughtDocument>({
         body: { type: String, required: true },
         imageSource: { type: String, required: false },
     },
-    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: [] }],
 
-    // validate: {
-    //     validator: function (likes: mongoose.Schema.Types.ObjectId[]) {
-    //         // Convert the array to a Set to remove duplicates
-    //         const uniqueValues = new Set(likes.map(String));
-    //         // Compare the size of the Set with the original array length
-    //         uniqueValues.size === likes.length;
-    //     },
-    //     message: 'Likes array must contain unique values',
-    // },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users', default: [] }],
 
-    likes: {
-        type: [{ type: mongoose.Schema.Types.ObjectId }],
-
-    }
 });
 
 
 // Custom validator function
 const duplicateValues = (likes: mongoose.Schema.Types.ObjectId[]) => {
 
-    const uniqueValues = new Set(likes.map(String));
+    const stringLikes = likes.map((objectId) => objectId.toString());
+
+    const uniqueValues = new Set(stringLikes);
+
+    console.log(uniqueValues)
     // Compare the size of the Set with the original array length
     if (uniqueValues.size === likes.length)
         return true;
@@ -104,9 +96,11 @@ const duplicateValues = (likes: mongoose.Schema.Types.ObjectId[]) => {
 
 export const ThoughtsModel: Model<ThoughtDocument> = mongoose.model<ThoughtDocument>('thoughts', thoughtSchema);
 
+thoughtSchema.path('likes').validate(duplicateValues);
+
 export const CommentModel = mongoose.model('Comment', commentSchema);
 
-thoughtSchema.path('likes').validate(duplicateValues);
+
 
 
 
@@ -143,17 +137,24 @@ export const getCommentsNumber = (thoughtID: string) => ThoughtsModel.findById(t
 
 }).catch(error => console.log(error));
 
-export const getLikesByThoughtID = (thoughtID: string) => ThoughtsModel.aggregate([
-    {
-        $project: {
-            likesCount: { $size: '$likes' } // Get the length of the 'likes' array field
-        }
-    }
+export const getLikesByThoughtID = (thoughtID: ObjectId) => ThoughtsModel.aggregate([
 
-])
+    { $match: { _id: thoughtID } }, // Match the thought by its ID
+    { $project: { likesCount: { $size: '$likes' } } }
+
+
+]).then(result => {
+
+    if (result.length > 0)
+        return result[0].likesCount;
+    return 0;
+
+
+
+})
 export const addUserLike = (userID: ObjectId, thoughtID: string) => ThoughtsModel.updateOne({ _id: thoughtID }, // Match the thought by its ID
     { $addToSet: { likes: userID } }).then(result => {
-
+        console.log(result);
         if (result.modifiedCount == 0)
             throw new Error('Could not add like');
 
@@ -163,6 +164,7 @@ export const addUserLike = (userID: ObjectId, thoughtID: string) => ThoughtsMode
 export const unLike = (thoughtID: ObjectId, userID: ObjectId) => ThoughtsModel.updateOne({ _id: thoughtID }, // Match the post by its ID
     { $pull: { likes: userID } })
     .then(result => {
+        console.log(result);
         if (result.modifiedCount == 0)
             throw new Error('Could not make unlike')
     })
@@ -194,6 +196,8 @@ export const getComments = (thoughtID: string) => ThoughtsModel.findById(thought
 
 export const getThoughtsByUsername = (username: string) => ThoughtsModel.findOne({ 'user.username': username });
 
+export const getThoughtsLik = () => ThoughtsModel.find({ likes: undefined });
+
 
 // export const getThoughtByKeyword = (sessionToken: string) => UserModel.findOne({ 'authentication.sessionToken': sessionToken });
 
@@ -214,6 +218,13 @@ export const addCommentToThought = (thoughtID: ObjectId, commentID: ObjectId) =>
         { new: true }) // Return the updated post document after the update operation
 }
 
+// export const addLikeToThought = (thoughtID: ObjectId, userID: ObjectId) => {
+//     return ThoughtsModel.findOneAndUpdate(
+//         { _id: thoughtID }, // Replace with the ObjectId of the post
+//         { $push: { likes: userID } }, // Push the ID of the new comment to the comments array
+//         { new: true, runValidators: true, context: 'query' })
+//     // Return the updated post document after the update operation
+// }
 
 
 

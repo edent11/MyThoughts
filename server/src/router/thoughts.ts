@@ -22,5 +22,4 @@ router.post('/thoughts/:thoughtID/isUserLiked', isUserLikedThought);
 
 
 
-
 export default router;

@@ -73,6 +73,7 @@ module.exports = {
       },
       animation: {
         ping_slow: 'ping 1s ease-in-out',
+        ping_slow: 'ping 1s ease-in-out',
         wiggle: 'wiggle 4s ease-in-out',
         bounce: 'bounce 1s ease-in',
         expand: 'width-expand 3s ease-in-out',
@@ -81,5 +82,9 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar')({
+      nocompatible: true
+    })
+  ],
 }

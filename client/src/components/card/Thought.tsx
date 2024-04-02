@@ -3,12 +3,18 @@ import React, { useEffect, useState, useReducer } from 'react'
 import { CiHeart } from 'react-icons/ci'
 import { FaHeart, FaCommentAlt } from 'react-icons/fa'
 import { User, useAuth } from '../../contexts/UserAuth'
-import LikesContainer from './LikesContainer'
-import Comments from './CommentsList'
+import LikesComments from './LikesComments'
+import LoadingButton from '../LoadingButton'
+import CommentsList from './CommentsList'
 import useSWR, { mutate } from 'swr'
-
+import LoadingSvg from '../LoadingSvg'
 interface Props {
   thought: ThoughtType
+}
+
+interface UserData {
+  session_token: string | undefined;
+  text?: string;
 }
 
 export interface ThoughtType {
@@ -19,20 +25,22 @@ export interface ThoughtType {
     image_source: string
   }
   createdAt: Date
-  // comments: [Comment];
-  // likes: number;
+
 }
 
 const Thought: React.FC<Props> = ({ thought }) => {
-  const user = useAuth()
   const [isLiked, setIsLiked] = useState<Boolean | null>(null)
+  const [mutateLikes, setMutateLikes] = useState<boolean>(false)
+  const [showComments, setShowComments] = useState<Boolean>(false)
+  const [isSendingComment, setIsSendingComment] = useState<boolean>(false);
+  const [commentText, setCommentText] = useState<string>('');
 
   const userData = {
-    session_token: user.getUser()?.session_token
+    session_token: useAuth().getUser()?.session_token,
   };
 
-
-  const fetcher = async (url: string, body: any) => await fetch(url, {
+  console.log(thought._id);
+  const fetcher = async (url: string, body: UserData) => await fetch(url, {
     method: 'POST', // or 'PUT', 'DELETE', etc. depending on your API
     headers: {
       'Content-Type': 'application/json',
@@ -49,12 +57,35 @@ const Thought: React.FC<Props> = ({ thought }) => {
     setIsLiked(data);
   }
 
+  const handleSubmit = async () => {
+
+    setIsSendingComment(true);
+
+    try {
+      // ? Send a POST request with body parameters
+      fetcher(`http://localhost:5000/thoughts/${thought._id}/addComment`, { ...userData, text: commentText });
+
+      setTimeout(() => {
+        setIsSendingComment(false);
+        setCommentText('');
+
+      }, 700);
+
+
+      mutate(`http://localhost:5000/thoughts/${thought._id}/comments`);
+    } catch (err) {
+      console.log(err)
+    }
+
+  };
+
+
   const updateLikes = async () => {
+
     try {
 
       const operation = !isLiked ? 'addLike' : 'unLike';
-
-
+      console.log(operation)
       // ? Send a POST request with body parameters
       const response = await fetch(`http://localhost:5000/thoughts/${thought._id}/${operation}`, {
         method: 'POST',
@@ -63,16 +94,28 @@ const Thought: React.FC<Props> = ({ thought }) => {
         },
         body: JSON.stringify(userData) // Convert formData to JSON string
       });
+      setMutateLikes(true);
     } catch (err) {
       console.log(err)
     }
   }
 
+  const updateShowComments = () => {
+    setShowComments(prevState => !prevState);
+  };
+
+  const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCommentText(event.target.value);
+  };
+
+
+
   return (
-    <div className="flex flex-col gap-2 font-signika backdrop-contrast-150  py-2 px-1 mt-10 bg-blue-200 w-[300px] shadow-lg rounded-lg">
-      <div id="picArea" className="relative text-center select-none">
+    <div className="flex flex-col gap-2 font-signika backdrop-contrast-150  py-2 px-1 mt-10 bg-white dark:bg-gray-700 w-[500px] ring-2 ring-purple-500 shadow-lg rounded-lg">
+
+      <div id="picArea" className="relative text-center mb-4 select-none">
         <img
-          className="w-80 h-52 shadow-lg rounded-xl"
+          className="w-[90%] h-52 mx-auto shadow-lg rounded-xl"
           src="https://media.istockphoto.com/id/578801514/photo/silhouette-of-woman-on-lakeside-jetty-with-majestic-sunset-cloudscape.webp?b=1&s=170667a&w=0&k=20&c=xKw_tPce-salqERo_EB_1joWJSpnWOXLIX7Vc7fCnG4="
           alt=""
         />
@@ -80,23 +123,23 @@ const Thought: React.FC<Props> = ({ thought }) => {
 
       <div
         id="textArea"
-        className="bg-white text-black divide-y-2 divide-transparent p-2 dark:bg-gray-700 dark:text-white shadow-lg h-full rounded-3xl"
+        className="bg-white text-black divide-y-2 divide-transparent p-2 dark:bg-gray-700 dark:text-white h-full rounded-3xl"
       >
         <div
           id="userArea"
-          className=" rounded-3xl p-1 select-none flex flex-row gap-2 items-center"
+          className=" rounded-3xl p-1  select-none flex flex-row gap-2 items-center"
         >
           <img
             className="rounded-full size-8 ring-white ring-2"
             src={`http://localhost:5000/avatars/${thought?.user.avatar}`}
             alt=""
           />
-          <p className=" select-none light:text-black font-bold">
+          <label className=" select-none light:text-black font-bold">
             {thought.user.username}
-          </p>
-          <p className=" select-none light:text-gray-700 opacity-60 text-sm">
+          </label>
+          <label className=" select-none light:text-gray-700 opacity-60 text-sm">
             15 seconds ago
-          </p>
+          </label>
 
           <div className="cursor-pointer ml-4">
             {isLiked ? (
@@ -128,9 +171,39 @@ const Thought: React.FC<Props> = ({ thought }) => {
         </div>
 
         <div id="commentsAndLikes" className="">
-          <div className="w-auto">
-            <LikesContainer thoughtID={thought._id} />
+          <div className="w-auto mb-4">
+            <LikesComments thoughtID={thought._id} updateShowComments={updateShowComments} />
           </div>
+
+
+          <div className='h-auto'>{showComments && <CommentsList thoughtID={thought._id} />}</div>
+
+          <div>
+            <div id="addAComment" className='relative'>
+              <textarea
+                value={commentText}
+                onChange={handleCommentChange}
+                rows={3} // Adjust the number of visible rows as needed
+                cols={30} // Adjust the number of visible columns as needed
+                placeholder="Enter comment here..."
+                className=' p-4 pr-20 rounded-md h-22 resize-none w-[98%] bg-gray-200 dark:bg-gray-600 '
+                required
+              />
+
+              <div className='absolute right-4 top-[50%] -translate-y-[50%]'>
+                <LoadingButton
+                  isLoading={isSendingComment}
+                  buttonText="Send"
+                  onClick={handleSubmit}
+                  className='rounded-lg text-white transition delay-1000 hover:from-blue-400 hover:to-blue-700 p-2 
+         bg-gradient-to-t shadow-xl from-purple-600 to-purple-400' />
+              </div>
+
+
+            </div>
+          </div>
+
+
         </div>
       </div>
     </div>

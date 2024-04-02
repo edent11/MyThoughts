@@ -16,7 +16,7 @@ const Comment: React.FC<Props> = ({ comment }) => {
     <div
       id="commentBox"
       className="bg-gray-100 text-black divide-y-2 divide-transparent
-         p-2 dark:bg-gray-600 dark:text-white shadow-lg h-full rounded-3xl"
+         p-2 dark:bg-gray-600 dark:text-white shadow-lg rounded-3xl w-[95%]"
     >
       <div
         id="userArea"
@@ -30,9 +30,9 @@ const Comment: React.FC<Props> = ({ comment }) => {
         <p className=" select-none light:text-black font-bold">
           {comment.user.username}
         </p>
-        <p className=" select-none light:text-gray-700 opacity-60 text-sm">
+        <label className=" select-none light:text-gray-700 opacity-60 text-sm">
           15 seconds ago
-        </p>
+        </label>
       </div>
       <div id="text" className="ml-5">
         {comment.text}
