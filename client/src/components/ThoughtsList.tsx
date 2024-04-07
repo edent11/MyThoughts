@@ -22,9 +22,15 @@ const ThoughtsList = () => {
 
   return (
     <div className="flex flex-col gap-5 h-[90%] mb-10">
-      {thoughtsList.map((thought) => {
-        return <Thought thought={thought} />
-      })}
+      {thoughtsList
+        .sort((a: ThoughtType, b: ThoughtType) => {
+          var date_a = new Date(a.createdAt).getMilliseconds();
+          var date_b = new Date(b.createdAt).getMilliseconds();
+          return date_a - date_b;
+        })
+        .map((thought) => {
+          return <Thought thought={thought} />
+        })}
     </div>
   )
 }

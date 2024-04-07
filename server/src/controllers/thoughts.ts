@@ -148,29 +148,34 @@ export const getAllComments = async (req: express.Request, res: express.Response
 
 export const createNewThought = async (req: express.Request, res: express.Response) => {
 
-    try {
-        const { username, content, session_token } = req.body;
 
-        if (!username || !content || !session_token)
+    try {
+        const { body, session_token } = req.body;
+        const image = req.file?.filename;
+
+
+        if (!body || !image || !session_token)
             return res.status(400).send(`Failed getting thought's data`);
 
-        const userCheck = await getUserBySessionToken(session_token);
+        const user = await getUserBySessionToken(session_token);
 
-        if (!userCheck || userCheck?.username != username)
+        if (!user)
             return res.status(400).send('Cannot authenticate user');
 
 
+
+
         const newThought = await createThought({
-            user: userCheck._id,
+            user: user._id,
             content:
             {
-                body: content.body,
-                imageSource: content.imageSource
+                body: body,
+                imageSource: `http://localhost:5000/assets/images/${image}`
             },
 
         });
 
-        return res.status(200).json(newThought).send();
+        return res.status(200).json("newThought").send();
 
     } catch (error) {
         console.log(error);

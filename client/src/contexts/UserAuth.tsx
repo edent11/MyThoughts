@@ -13,9 +13,10 @@ export interface LoginData {
   password: string
 }
 
-export interface RegisterData {
-  user: User | null
-  password: string
+export interface RegisterData extends LoginData {
+  username: string,
+  password: string,
+  avatar: string
 }
 
 interface AuthState {

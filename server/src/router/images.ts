@@ -44,11 +44,19 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Route to handle file upload
-router.post('/images/upload', upload.single('image'), (req: Request, res: Response) => {
+router.post('/assets/images/upload', upload.single('image'), (req: Request, res: Response) => {
     // File has been uploaded
     res.send('File uploaded successfully');
 });
 
+router.get('/assets/images/:imageName', (req, res) => {
+    // do a bunch of if statements to make sure the user is 
+    // authorized to view this image, then
+
+    const imageName = req.params.imageName
+    const readStream = fs.createReadStream(`assets/images/${imageName}`)
+    readStream.pipe(res)
+})
 
 
 export default router;

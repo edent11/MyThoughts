@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useReducer } from 'react'
-
+import React, { useEffect, useState, useReducer, FormEvent } from 'react'
 import { CiHeart } from 'react-icons/ci'
 import { FaHeart, FaCommentAlt } from 'react-icons/fa'
 import { User, useAuth } from '../../contexts/UserAuth'
@@ -23,7 +22,7 @@ export interface ThoughtType {
   user: User
   content: {
     body: string
-    image_source: string
+    imageSource: string
   }
   createdAt: Date
 
@@ -59,10 +58,10 @@ const Thought: React.FC<Props> = ({ thought }) => {
     setIsLiked(data);
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
 
+    event.preventDefault();
     setIsSendingComment(true);
-
 
 
     try {
@@ -121,8 +120,8 @@ const Thought: React.FC<Props> = ({ thought }) => {
       <div id="picArea" className="relative text-center mb-4 select-none">
         <img
           className="w-[60%] h-40 md:w-[90%] md:h-52 mx-auto shadow-lg rounded-xl"
-          src="https://media.istockphoto.com/id/578801514/photo/silhouette-of-woman-on-lakeside-jetty-with-majestic-sunset-cloudscape.webp?b=1&s=170667a&w=0&k=20&c=xKw_tPce-salqERo_EB_1joWJSpnWOXLIX7Vc7fCnG4="
-          alt=""
+          src={thought.content.imageSource}
+          alt="user-image"
         />
       </div>
 
@@ -185,25 +184,26 @@ const Thought: React.FC<Props> = ({ thought }) => {
 
           <div>
             <div id="addAComment" className='relative'>
-              <textarea
-                value={commentText}
-                onChange={handleCommentChange}
-                rows={3} // Adjust the number of visible rows as needed
-                cols={30} // Adjust the number of visible columns as needed
-                placeholder="Enter comment here..."
-                className='p-2 pr-20 rounded-md md:h-22 md:p-4 md:h-20 h-12  w-[98%] resize-none bg-gray-200 dark:bg-gray-600 overflow-auto'
+              <form onSubmit={handleSubmit}>
+                <textarea
+                  value={commentText}
+                  onChange={handleCommentChange}
+                  rows={3} // Adjust the number of visible rows as needed
+                  cols={30} // Adjust the number of visible columns as needed
+                  placeholder="Enter comment here..."
+                  className={`p-2 pr-20 rounded-md md:h-22 md:p-4 md:h-20 h-12 w-[98%] resize-none bg-gray-200 dark:bg-gray-600 overflow-auto`}
+                  disabled={isSendingComment ? true : false}
+                  required
+                />
 
-                required
-              />
-
-              <div className='absolute right-8 top-[50%] -translate-y-[60%]'>
-                <LoadingButton
-                  isLoading={isSendingComment}
-                  isEnabled={commentText.length ? true : false}
-                  buttonText="Send"
-                  onClick={handleSubmit}
-                  className='rounded-lg w-6 h-6 text-sm md:w-auto md:h-auto text-white transition delay-1000 ' />
-              </div>
+                <div className='absolute right-8 top-[50%] -translate-y-[60%]'>
+                  <LoadingButton
+                    isLoading={isSendingComment}
+                    isEnabled={commentText.length ? true : false}
+                    buttonText="Send"
+                    className='rounded-lg w-6 h-6 text-sm md:w-auto md:h-auto text-white transition delay-200 ' />
+                </div>
+              </form>
 
 
             </div>

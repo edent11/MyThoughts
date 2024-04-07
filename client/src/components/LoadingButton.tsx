@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { FormEvent, useState } from 'react'
 
 
 
@@ -13,10 +13,8 @@ type Props = {
 
 const LoadingButton: React.FC<Props> = ({ className, onClick, isLoading, buttonText, isEnabled }) => {
 
-    const [spin, setSpin] = useState<Boolean>(false);
 
     const handleClick = () => {
-        setSpin(true);
         if (onClick)
             onClick();
     };
@@ -24,8 +22,9 @@ const LoadingButton: React.FC<Props> = ({ className, onClick, isLoading, buttonT
     return (
         <div id='loading-btn' className=''>
             <button
+                type="submit"
                 className={`relative inline-flex gap-4 items-center justify-center px-4 py-2 border
-                 border-transparent text-base font-medium shadow rounded-md transition delay-100 -xl dark:bg-purple-600 
+                 border-transparent text-base font-medium shadow rounded-md transition delay-100 bg-purple-600 
                    ${className} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} ${!isEnabled ? 'opacity-30 no-hover' : 'hover:bg-purple-500'}`}
                 onClick={handleClick}
                 disabled={isLoading || !isEnabled}>

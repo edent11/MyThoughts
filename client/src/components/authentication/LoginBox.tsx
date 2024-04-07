@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth, LoginData } from '../../contexts/UserAuth'
+import LoadingButton from '../LoadingButton'
 
 const LoginBox: React.FC = () => {
   const auth = useAuth()
   const navigate = useNavigate()
 
   const [responseMessage, setResponseMessage] = useState('')
-
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loginData, setLoginData] = useState<LoginData>({
     username: '',
     password: '',
@@ -24,6 +25,7 @@ const LoginBox: React.FC = () => {
   // Event handler for form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setIsLoading(true);
     // Do something with the form data, like submitting it to a server
 
     auth
@@ -33,6 +35,7 @@ const LoginBox: React.FC = () => {
         window.location.reload()
       })
       .catch((message) => setResponseMessage(message))
+    setIsLoading(false);
   }
 
   return (
@@ -86,13 +89,13 @@ const LoginBox: React.FC = () => {
               <p className="text-red-600">{responseMessage}</p>
             )}
 
-            <button
-              className="bg-gradient-to-r from-purple-500 to-purple-700 text-white
-                         hover:bg-gradient-to-l h-8 w-20 rounded-xl hover:bg-opacity-50"
-              type="submit"
-            >
-              Login
-            </button>
+            <LoadingButton
+
+              isLoading={isLoading}
+              isEnabled={true}
+              buttonText='Login'
+              className={`bg-gradient-to-r  text-[1rem] from-purple-500 to-purple-700
+                         text-white hover:bg-gradient-to-l h-8 w-20 rounded-xl hover:bg-opacity-50`} />
           </div>
         </form>
       </div>

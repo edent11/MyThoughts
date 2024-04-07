@@ -13,7 +13,7 @@ export const calcTimePassed = (createdAt: Date): string => {
     const differenceDays = Math.floor(differenceMs / (1000 * 60 * 60 * 24));
 
     if (differenceDays > 0) {
-        return `${differenceDays} days ago`;
+        return `${differenceDays} day${differenceDays > 1 ? 's' : ''} ago`;
     }
 
     // Convert milliseconds to days
@@ -27,14 +27,16 @@ export const calcTimePassed = (createdAt: Date): string => {
 
 
     if (differenceHours > 0) {
-        return `${differenceHours} hours ago`;
+        return `${differenceHours} hour${differenceHours > 1 ? 's' : ''} ago`;
     }
 
     if (differenceMinutes > 0) {
-        return `${differenceMinutes} minutes ago`;
+        return `${differenceMinutes} minute${differenceMinutes > 1 ? 's' : ''} ago`;
 
     }
 
-    return `${differenceSeconds} seconds ago`;
+    return `${differenceSeconds} second${differenceSeconds > 1 ? 's' : ''} ago`;
 
 }
+
+export const fetcher = (url: string) => fetch(url).then((res) => res.json());

@@ -180,17 +180,17 @@ const NavBar = () => {
                         <a href="/">Home</a>
                     </li>
 
-                    <li className=''>
-                        <a href={user.isAuthenticated() ? '/logout' : '/login'}
+                    <li className={user.isAuthenticated() ? 'hidden' : ''}>
+                        <a href='/login'
                             className={` no-underline dark:hover:text-purple-400  dark:no-underline hover:underline hover:underline-offset-4`}
-                        >{user.isAuthenticated() ? 'Logout' : 'Login'}</a>
+                        >{'Login'}</a>
                     </li>
 
 
-                    <li>
-                        <a href="/login"
+                    <li className={user.isAuthenticated() ? '' : 'hidden'}>
+                        <a href="/newThought"
                             className={` no-underline dark:hover:text-purple-400  dark:no-underline hover:underline hover:underline-offset-4`}
-                        >My</a>
+                        >Add Thought</a>
                     </li>
 
                     <FormGroup>

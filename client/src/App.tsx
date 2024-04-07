@@ -6,6 +6,7 @@ import { useTheme } from './contexts/ThemeProvider'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import NewThought from './pages/NewThought'
 
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
       <NavBar />
 
       <main
-        className={`w-full flex flex-col items-center justify-center
+        className={`w-full h-full flex flex-col items-center justify-center
        text-white bg-gradient-to-l bg-gray-400 dark:from-gray-900 dark:to-gray-800`}
       >
         <Routes>
@@ -24,6 +25,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/newThought" element={<NewThought />} />
 
           {/* private routes */}
           <Route path="/" element={<PrivateRoute />}>

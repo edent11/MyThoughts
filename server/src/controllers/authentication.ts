@@ -9,7 +9,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 
         const { username, password, avatar } = req.body;
 
-        if (!username || !password)
+        if (!username || !password || !avatar)
             return res.status(400).send('No username or password provided');
 
         const existingUser = await getUserByUsername(username);
