@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "infoStory";
+  src: url("./assets/fonts/infoStory.ttf");
+}
+
+.loading-btn button:hover {
+  transition-delay: 500ms; /* Add a delay of 200ms */
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

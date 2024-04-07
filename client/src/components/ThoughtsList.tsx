@@ -21,7 +21,7 @@ const ThoughtsList = () => {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 h-[90%] mb-10">
       {thoughtsList.map((thought) => {
         return <Thought thought={thought} />
       })}

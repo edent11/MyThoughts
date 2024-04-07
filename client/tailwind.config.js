@@ -10,8 +10,13 @@ module.exports = {
   theme: {
     extend: {
 
+      lineClamp: {
+        5: '5',
+      },
+
       fontFamily: {
         signika: ['signika', 'sans-serif'],
+        info_story: ['infoStory', 'signika'],
       },
       colors: {
         nav_dark: '#2a3038',

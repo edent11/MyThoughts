@@ -7,10 +7,11 @@ type Props = {
     onClick?: () => void | Promise<void> | undefined;
     isLoading: boolean;
     buttonText: string;
+    isEnabled?: boolean;
 }
 
 
-const LoadingButton: React.FC<Props> = ({ className, onClick, isLoading, buttonText }) => {
+const LoadingButton: React.FC<Props> = ({ className, onClick, isLoading, buttonText, isEnabled }) => {
 
     const [spin, setSpin] = useState<Boolean>(false);
 
@@ -21,14 +22,14 @@ const LoadingButton: React.FC<Props> = ({ className, onClick, isLoading, buttonT
     };
 
     return (
-        <div className=''>
+        <div id='loading-btn' className=''>
             <button
                 className={`relative inline-flex gap-4 items-center justify-center px-4 py-2 border
-                 border-transparent text-base font-medium rounded-md  ${className} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                 border-transparent text-base font-medium shadow rounded-md transition delay-100 -xl dark:bg-purple-600 
+                   ${className} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} ${!isEnabled ? 'opacity-30 no-hover' : 'hover:bg-purple-500'}`}
                 onClick={handleClick}
-                disabled={isLoading}
-            >
+                disabled={isLoading || !isEnabled}>
+
                 {
 
                     isLoading && <div

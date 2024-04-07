@@ -46,7 +46,7 @@ const LikesContainer: React.FC<Props> = ({ thoughtID, updateShowComments }) => {
   // // Update previousData when data changes
   useEffect(() => {
 
-    console.log(likesAmount, previousData.likes)
+
     if (likesAmount && likesAmount !== previousData.likes) {
 
       setPreviousData({ ...previousData, likes: likesAmount });

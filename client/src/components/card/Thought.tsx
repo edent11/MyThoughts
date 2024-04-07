@@ -7,7 +7,8 @@ import LikesComments from './LikesComments'
 import LoadingButton from '../LoadingButton'
 import CommentsList from './CommentsList'
 import useSWR, { mutate } from 'swr'
-import LoadingSvg from '../LoadingSvg'
+import { calcTimePassed } from '../shared/utils'
+
 interface Props {
   thought: ThoughtType
 }
@@ -29,17 +30,18 @@ export interface ThoughtType {
 }
 
 const Thought: React.FC<Props> = ({ thought }) => {
-  const [isLiked, setIsLiked] = useState<Boolean | null>(null)
-  const [mutateLikes, setMutateLikes] = useState<boolean>(false)
-  const [showComments, setShowComments] = useState<Boolean>(false)
+  const [isLiked, setIsLiked] = useState<Boolean | null>(null);
+  const [timePassed, setTimePassed] = useState<string>(calcTimePassed(thought.createdAt));
+  const [mutateLikes, setMutateLikes] = useState<boolean>(false);
+  const [showComments, setShowComments] = useState<Boolean>(false);
   const [isSendingComment, setIsSendingComment] = useState<boolean>(false);
   const [commentText, setCommentText] = useState<string>('');
+  const [lineClamp, setLineClamp] = useState<number>(3);
 
   const userData = {
     session_token: useAuth().getUser()?.session_token,
   };
 
-  console.log(thought._id);
   const fetcher = async (url: string, body: UserData) => await fetch(url, {
     method: 'POST', // or 'PUT', 'DELETE', etc. depending on your API
     headers: {
@@ -60,6 +62,8 @@ const Thought: React.FC<Props> = ({ thought }) => {
   const handleSubmit = async () => {
 
     setIsSendingComment(true);
+
+
 
     try {
       // ? Send a POST request with body parameters
@@ -85,7 +89,7 @@ const Thought: React.FC<Props> = ({ thought }) => {
     try {
 
       const operation = !isLiked ? 'addLike' : 'unLike';
-      console.log(operation)
+
       // ? Send a POST request with body parameters
       const response = await fetch(`http://localhost:5000/thoughts/${thought._id}/${operation}`, {
         method: 'POST',
@@ -111,11 +115,12 @@ const Thought: React.FC<Props> = ({ thought }) => {
 
 
   return (
-    <div className="flex flex-col gap-2 font-signika backdrop-contrast-150  py-2 px-1 mt-10 bg-white dark:bg-gray-700 w-[500px] ring-2 ring-purple-500 shadow-lg rounded-lg">
+    <div className="flex flex-col gap-2 font-signika backdrop-contrast-150 
+    py-2 px-1 mt-10 bg-white dark:bg-gray-700 w-[80vw] ring-2 ring-purple-500 shadow-lg rounded-lg md:w-[540px]">
 
       <div id="picArea" className="relative text-center mb-4 select-none">
         <img
-          className="w-[90%] h-52 mx-auto shadow-lg rounded-xl"
+          className="w-[60%] h-40 md:w-[90%] md:h-52 mx-auto shadow-lg rounded-xl"
           src="https://media.istockphoto.com/id/578801514/photo/silhouette-of-woman-on-lakeside-jetty-with-majestic-sunset-cloudscape.webp?b=1&s=170667a&w=0&k=20&c=xKw_tPce-salqERo_EB_1joWJSpnWOXLIX7Vc7fCnG4="
           alt=""
         />
@@ -138,7 +143,7 @@ const Thought: React.FC<Props> = ({ thought }) => {
             {thought.user.username}
           </label>
           <label className=" select-none light:text-gray-700 opacity-60 text-sm">
-            15 seconds ago
+            {timePassed}
           </label>
 
           <div className="cursor-pointer ml-4">
@@ -166,8 +171,8 @@ const Thought: React.FC<Props> = ({ thought }) => {
           </div>
         </div>
 
-        <div className="px-8 light:text-blue-900 line-clamp-3" id="textArea">
-          {thought?.content.body}
+        <div className="px-10 light:text-blue-900 mb-10" id="textArea">
+          <p id="text" className={`break-words font-info_story text-lg line-clamp-${lineClamp}`} onClick={() => setLineClamp(prev => prev + 1)}> {thought.content.body}</p>
         </div>
 
         <div id="commentsAndLikes" className="">
@@ -186,17 +191,18 @@ const Thought: React.FC<Props> = ({ thought }) => {
                 rows={3} // Adjust the number of visible rows as needed
                 cols={30} // Adjust the number of visible columns as needed
                 placeholder="Enter comment here..."
-                className=' p-4 pr-20 rounded-md h-22 resize-none w-[98%] bg-gray-200 dark:bg-gray-600 '
+                className='p-2 pr-20 rounded-md md:h-22 md:p-4 md:h-20 h-12  w-[98%] resize-none bg-gray-200 dark:bg-gray-600 overflow-auto'
+
                 required
               />
 
-              <div className='absolute right-4 top-[50%] -translate-y-[50%]'>
+              <div className='absolute right-8 top-[50%] -translate-y-[60%]'>
                 <LoadingButton
                   isLoading={isSendingComment}
+                  isEnabled={commentText.length ? true : false}
                   buttonText="Send"
                   onClick={handleSubmit}
-                  className='rounded-lg text-white transition delay-1000 hover:from-blue-400 hover:to-blue-700 p-2 
-         bg-gradient-to-t shadow-xl from-purple-600 to-purple-400' />
+                  className='rounded-lg w-6 h-6 text-sm md:w-auto md:h-auto text-white transition delay-1000 ' />
               </div>
 
 

@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from 'react'
-import { useTheme } from '../contexts/ThemeProvider'
 import LoginBox from '../components/authentication/LoginBox'
 
 const Login = () => {
-  const theme = useTheme()
 
   return (
     <div
