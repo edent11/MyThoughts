@@ -33,7 +33,7 @@ const LoadingButton: React.FC<Props> = ({ className, onClick, isLoading, buttonT
 
                     isLoading && <div
 
-                        className="inline-block h-5 w-5 animate-spin rounded-full border-4 border-solid
+                        className="inline-block h-2 w-2 md:h-5 md:w-5 animate-spin rounded-full border-2 border-solid
                          border-current border-r-transparent align-[-0.125em] text-primary motion-reduce:animate-[spin_1.5s_linear_infinite]"
                         role="status">
 

@@ -7,6 +7,7 @@ import LoadingButton from '../LoadingButton'
 import CommentsList from './CommentsList'
 import useSWR, { mutate } from 'swr'
 import { calcTimePassed } from '../shared/utils'
+import ThoughtImage from './ThoughtImage'
 
 interface Props {
   thought: ThoughtType
@@ -114,15 +115,22 @@ const Thought: React.FC<Props> = ({ thought }) => {
 
 
   return (
-    <div className="flex flex-col gap-2 font-signika backdrop-contrast-150 
-    py-2 px-1 mt-10 bg-white dark:bg-gray-700 w-[80vw] ring-2 ring-purple-500 shadow-lg rounded-lg md:w-[540px]">
+    <div className="flex flex-col gap-2 font-signika backdrop-contrast-150 drop-shadow-[0_10px_10px_rgba(200,200,200,0.4)]
+    py-2 px-1 mt-10 bg-white dark:bg-gray-700 w-[80vw] ring-2 ring-purple-500  rounded-lg md:w-[540px]">
 
       <div id="picArea" className="relative text-center mb-4 select-none">
-        <img
+
+        <ThoughtImage
+          src={thought.content.imageSource}
+          className="w-[60%] h-40 md:w-[90%] md:h-52 mx-auto shadow-lg rounded-xl"
+        />
+
+
+        {/* <img
           className="w-[60%] h-40 md:w-[90%] md:h-52 mx-auto shadow-lg rounded-xl"
           src={thought.content.imageSource}
           alt="user-image"
-        />
+        /> */}
       </div>
 
       <div

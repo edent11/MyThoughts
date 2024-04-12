@@ -47,15 +47,7 @@ const commentSchema = new mongoose.Schema<Comment>({
 
 });
 
-// const likeSchema = new mongoose.Schema<Like>({
 
-//     number: {
-//         type: Number,
-//         default: 0
-//     },
-//     users: [User],
-
-// });
 
 const thoughtSchema = new mongoose.Schema<ThoughtDocument>({
 
@@ -108,6 +100,7 @@ export const CommentModel = mongoose.model('Comment', commentSchema);
 
 export const getThoughts = () => ThoughtsModel.find().populate('user');
 
+
 // .then(async thoughts => {
 
 //     const user = await getUserBySessionToken(session_token);
@@ -154,7 +147,7 @@ export const getLikesByThoughtID = (thoughtID: ObjectId) => ThoughtsModel.aggreg
 })
 export const addUserLike = (userID: ObjectId, thoughtID: string) => ThoughtsModel.updateOne({ _id: thoughtID }, // Match the thought by its ID
     { $addToSet: { likes: userID } }).then(result => {
-        console.log(result);
+
         if (result.modifiedCount == 0)
             throw new Error('Could not add like');
 
@@ -164,7 +157,7 @@ export const addUserLike = (userID: ObjectId, thoughtID: string) => ThoughtsMode
 export const unLike = (thoughtID: ObjectId, userID: ObjectId) => ThoughtsModel.updateOne({ _id: thoughtID }, // Match the post by its ID
     { $pull: { likes: userID } })
     .then(result => {
-        console.log(result);
+
         if (result.modifiedCount == 0)
             throw new Error('Could not make unlike')
     })

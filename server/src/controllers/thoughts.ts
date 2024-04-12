@@ -3,39 +3,33 @@ import express from 'express'
 import {
     createThought, getThoughtById, getThoughts, getThoughtsLik,
     getLikesByThoughtID, isUserLiked, getComments, addCommentToThought,
-    unLike, getCommentsNumber, createComment, addUserLike
+    unLike, getCommentsNumber, createComment, addUserLike, getThoughtsByUsername
 } from '../db/thought'
 import { getUserBySessionToken } from '../db/user'
+import { get } from 'http';
 
 
 
 
-//wit
+
 export const allThoughtsWithoutLikes = async (req: express.Request, res: express.Response) => {
 
+    try {
+        const thoughts = await getThoughts()
+            .then(data => {
+                return data;
+            });
+        return res.status(200).json(thoughts);
 
-    const thoughts = await getThoughts()
-        .then(data => {
-            return data;
-        });
-    return res.status(200).json(thoughts);
-
-
-
-}
-
-export const abc = async (req: express.Request, res: express.Response) => {
-
-
-    const thoughts = await getThoughtsLik()
-        .then(data => {
-            return data;
-        });
-    return res.status(200).json(thoughts);
+    }
+    catch (err) {
+        console.log(err);
+    }
 
 
 
 }
+
 
 export const isUserLikedThought = async (req: express.Request, res: express.Response) => {
 
@@ -59,13 +53,33 @@ export const isUserLikedThought = async (req: express.Request, res: express.Resp
         return res.status(400).send(err);
     }
 
-
-
 }
 
 export const getThoughtLikesByID = async (req: express.Request, res: express.Response) => {
 
     try {
+        const thoughtID = req.params.thoughtID;
+
+        const thought = await getThoughtById(thoughtID);
+
+        if (!thought)
+            throw new Error("error")
+
+        const likes = await getLikesByThoughtID(thought._id);
+
+        return res.status(200).json(likes);
+    }
+    catch (err) {
+        return res.status(400).send(err);
+    }
+
+}
+
+export const getThoughtsByUser = async (req: express.Request, res: express.Response) => {
+
+    try {
+        const session_token = req.params.session_token;
+
         const thoughtID = req.params.thoughtID;
 
         const thought = await getThoughtById(thoughtID);
@@ -96,21 +110,38 @@ export const getThoughtLikesByID = async (req: express.Request, res: express.Res
 
 export const getThoughtByID = async (req: express.Request, res: express.Response) => {
 
-    const thoughtID = req.params.thoughtID;
-    const thought = await getThoughtById(thoughtID)
-        .then(data => {
-            return data;
-        });
+    try {
 
-    return res.status(200).json(thought);
+        const thoughtID = req.params.thoughtID;
+
+        if (!thoughtID)
+            return res.status(404).send("Thought Not Found");
+
+
+        const thought = await getThoughtById(thoughtID)
+            .then(data => {
+                return data;
+            });
+
+        return res.status(200).json(thought);
+    }
+    catch (err) {
+        console.log(err);
+    }
 
 }
 
 export const getCommentsLength = async (req: express.Request, res: express.Response) => {
 
-    const thoughtID = req.params.thoughtID;
+
 
     try {
+
+        const thoughtID = req.params.thoughtID;
+
+        if (!thoughtID)
+            return res.status(404).send("Thought Not Found");
+
         const comments = await getCommentsNumber(thoughtID)
             .then(data => {
                 return data;
@@ -132,7 +163,9 @@ export const getAllComments = async (req: express.Request, res: express.Response
     try {
         const thoughtID = req.params.thoughtID;
         const comments = await getComments(thoughtID);
-        if (!comments)
+
+        if (!comments || !thoughtID)
+
             throw new Error("Can't find comments");
 
         return res.status(200).json(comments);
@@ -183,36 +216,6 @@ export const createNewThought = async (req: express.Request, res: express.Respon
 
 }
 
-// export const addLike = async (req: express.Request, res: express.Response) => {
-
-//     try {
-
-//         const thoughtID = req.params.thoughtID;
-//         const session_token = req.body.session_token;
-
-//         const user = await getUserBySessionToken(session_token);
-
-//         if (!thoughtID || !user)
-//             return res.status(400).send(`Failed getting  data`);
-
-//         const thought = await getThoughtById(thoughtID);
-
-
-//         if (!thought)
-//             return res.status(400).send(`Could not find requested thought`);
-
-
-
-//         await addUserLike(user._id, thoughtID);
-
-//         return res.status(200).send("Like was added successfully");
-
-//     }
-//     catch (error) {
-//         console.error('Error caught:', error); // Log the entire error object
-//         // res.status(500).send('Internal Server Error');
-//     }
-// }
 
 
 
@@ -221,17 +224,22 @@ export const makeUnLike = async (req: express.Request, res: express.Response) =>
 
     try {
 
-        const thoughtID = req.params.thoughtID;
         const session_token = req.body.session_token;
+        const thoughtID = req.params.thoughtID;
 
-        if (!thoughtID || !session_token)
+        if (!session_token || thoughtID)
             return res.status(400).send(`Failed getting data`);
 
         const thought = await getThoughtById(thoughtID);
+
+        if (!thought)
+            return res.status(400).send(`Could not find requested thought`);
+
+
         const user = await getUserBySessionToken(session_token);
 
-        if (!thought || !user)
-            return res.status(400).send(`Could not find requested thought`);
+        if (!user)
+            return res.status(400).send(`Unrecognized session token`);
 
         await unLike(thought._id, user._id);
         return res.status(200).send("Unliked Successfully");
@@ -249,6 +257,7 @@ export const addComment = async (req: express.Request, res: express.Response) =>
 
         const { session_token, text } = req.body;
         const thoughtID = req.params.thoughtID;
+
 
         if (!thoughtID || !text || !session_token)
             return res.status(400).send(`Failed getting data`)
