@@ -34,7 +34,7 @@ const ThoughtsList: React.FC<Props> = ({ session_token }) => {
           return date_b - date_a;
         })
         .map((thought) => {
-          return <Thought thought={thought} />
+          return <Thought thought={thought} key={thought._id} />
         })}
     </div>
   )

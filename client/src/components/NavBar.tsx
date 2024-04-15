@@ -64,6 +64,7 @@ const NavBar = () => {
 
 
     const user = useAuth();
+    const userProfile = user.getUser();
     const navigate = useNavigate();
     const theme = useTheme();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -120,10 +121,10 @@ const NavBar = () => {
                         <div className='p-1 flex flex-row items-center gap-6 cursor-pointer'>
 
                             <img
-                                src={`http://localhost:5000/avatars/${user.getUser()?.avatar}`}
+                                src={userProfile?.avatar}
                                 alt="avatar"
                                 className='size-8 ring-2 rounded-full ring-green-200 shadow-xl' />
-                            <p>{user.getUser()?.username}</p>
+                            <p>{userProfile?.username}</p>
 
                             {
                                 isDropDownVisible ? <IoIosArrowUp /> : <IoIosArrowDown />

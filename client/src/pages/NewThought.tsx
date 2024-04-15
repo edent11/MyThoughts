@@ -44,11 +44,6 @@ const NewThought: React.FC<Props> = () => {
         event.preventDefault();
         setIsLoading(true);
 
-        if (!thoughtData.image) {
-            console.error('No file selected');
-            return;
-        }
-
         const formData = new FormData();
         // formData.append('image', thoughtData.image);
 

@@ -16,7 +16,7 @@ export interface LoginData {
 export interface RegisterData extends LoginData {
   username: string,
   password: string,
-  avatar: string
+  avatarImg: string
 }
 
 interface AuthState {

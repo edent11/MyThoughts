@@ -19,6 +19,7 @@ const Comment: React.FC<Props> = ({ comment }) => {
   const [lineClamp, setLineClamp] = useState<number>(3);
   const [postTime, setPostTime] = useState<string>(calcTimePassed(comment.createdAt));
 
+
   useEffect(() => {
 
     setLineClamp(3);
@@ -39,7 +40,7 @@ const Comment: React.FC<Props> = ({ comment }) => {
       >
         <img
           className="rounded-full size-8 ring-white ring-2"
-          src={`http://localhost:5000/avatars/${comment.user.avatar}`}
+          src={comment.user.avatar}
           alt=""
         />
         <p className=" select-none light:text-black font-bold dark:text-purple-300">

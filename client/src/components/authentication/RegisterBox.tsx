@@ -13,11 +13,12 @@ const UserBox: React.FC = () => {
 
   const [selectedAvatar, setSelectedAvatar] = useState<string>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isRegisterEnabled, setIsRegisterEnabled] = useState<boolean>(false)
 
   const [registerData, setRegisterData] = useState<RegisterData>({
     username: '',
     password: '',
-    avatar: ''
+    avatarImg: ''
   })
 
   const { data: avatars } = useSWR<string[]>(
@@ -37,10 +38,20 @@ const UserBox: React.FC = () => {
   useEffect(() => {
     setRegisterData((prevState) => ({
       ...prevState,
-      avatar: selectedAvatar?.toString() || '',
+      avatarImg: selectedAvatar?.toString() || '',
     }))
-    console.log(registerData.avatar)
+    console.log(registerData.avatarImg)
   }, [selectedAvatar])
+
+
+  useEffect(() => {
+
+    if (!registerData.username || !registerData.password || !registerData.avatarImg)
+      setIsRegisterEnabled(false);
+    else
+      setIsRegisterEnabled(true);
+
+  }, [registerData])
 
   // Event handler for form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -110,7 +121,6 @@ const UserBox: React.FC = () => {
                         src={`http://localhost:5000/avatars/${avatar}`}
                         alt=""
                         onClick={() => {
-                          console.log("bb" + avatar);
                           setSelectedAvatar(avatar);
                         }}
                       />
@@ -127,7 +137,7 @@ const UserBox: React.FC = () => {
             <LoadingButton
 
               isLoading={isLoading}
-              isEnabled={true}
+              isEnabled={isRegisterEnabled}
               buttonText='Register'
               className={`bg-gradient-to-r  text-[1rem] from-purple-500 to-purple-700
                          text-white hover:bg-gradient-to-l h-8 w-20 rounded-xl hover:bg-opacity-50`} />

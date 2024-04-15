@@ -8,6 +8,7 @@ import CommentsList from './CommentsList'
 import useSWR, { mutate } from 'swr'
 import { calcTimePassed } from '../shared/utils'
 import ThoughtImage from './ThoughtImage'
+import CommentInput from './TextareaWithTags'
 
 interface Props {
   thought: ThoughtType
@@ -31,7 +32,7 @@ export interface ThoughtType {
 
 const Thought: React.FC<Props> = ({ thought }) => {
   const [isLiked, setIsLiked] = useState<Boolean | null>(null);
-  const [timePassed, setTimePassed] = useState<string>(calcTimePassed(thought.createdAt));
+  const timePassed: string = calcTimePassed(thought.createdAt);
   const [mutateLikes, setMutateLikes] = useState<boolean>(false);
   const [showComments, setShowComments] = useState<Boolean>(false);
   const [isSendingComment, setIsSendingComment] = useState<boolean>(false);
@@ -112,26 +113,24 @@ const Thought: React.FC<Props> = ({ thought }) => {
     setCommentText(event.target.value);
   };
 
+  console.log(thought.content.imageSource)
 
 
   return (
     <div className="flex flex-col gap-2 font-signika backdrop-contrast-150 drop-shadow-[0_10px_10px_rgba(200,200,200,0.4)]
     py-2 px-1 mt-10 bg-white dark:bg-gray-700 w-[80vw] ring-2 ring-purple-500  rounded-lg md:w-[540px]">
 
-      <div id="picArea" className="relative text-center mb-4 select-none">
-
-        <ThoughtImage
-          src={thought.content.imageSource}
-          className="w-[60%] h-40 md:w-[90%] md:h-52 mx-auto shadow-lg rounded-xl"
-        />
+      {thought.content.imageSource &&
+        <div id="picArea" className="relative text-center mb-4 select-none">
 
 
-        {/* <img
-          className="w-[60%] h-40 md:w-[90%] md:h-52 mx-auto shadow-lg rounded-xl"
-          src={thought.content.imageSource}
-          alt="user-image"
-        /> */}
-      </div>
+          <ThoughtImage
+            src={thought.content.imageSource}
+            className="w-[60%] h-40 md:w-[90%] md:h-52 mx-auto shadow-lg rounded-xl"
+          />
+
+        </div>
+      }
 
       <div
         id="textArea"
@@ -143,7 +142,7 @@ const Thought: React.FC<Props> = ({ thought }) => {
         >
           <img
             className="rounded-full size-8 ring-white ring-2"
-            src={`http://localhost:5000/avatars/${thought?.user.avatar}`}
+            src={thought?.user.avatar}
             alt=""
           />
           <label className=" select-none light:text-black font-bold">
@@ -211,6 +210,8 @@ const Thought: React.FC<Props> = ({ thought }) => {
                     buttonText="Send"
                     className='rounded-lg w-6 h-6 text-sm md:w-auto md:h-auto text-white transition delay-200 ' />
                 </div>
+
+                <CommentInput placeHolder='Enter comment here' />
               </form>
 
 
