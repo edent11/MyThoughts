@@ -5,8 +5,10 @@ import {
     getLikesByThoughtID, isUserLiked, getComments, addCommentToThought,
     unLike, getCommentsNumber, createComment, addUserLike, getThoughtsByUsername
 } from '../db/thought'
-import { getUserBySessionToken } from '../db/user'
+import { getUserBySessionToken, getUserByUsername, getUserIDByUsername } from '../db/user'
 import { get } from 'http';
+import mongoose from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 
 
@@ -168,6 +170,8 @@ export const getAllComments = async (req: express.Request, res: express.Response
 
             throw new Error("Can't find comments");
 
+        console.log(comments);
+
         return res.status(200).json(comments);
     }
 
@@ -183,11 +187,12 @@ export const createNewThought = async (req: express.Request, res: express.Respon
 
 
     try {
-        const { body, session_token } = req.body;
+        const { text, session_token, tags } = req.body;
         const image = req.file?.filename;
 
+        var userIDTags: ObjectId[] = [];
 
-        if (!body || !image || !session_token)
+        if (!text || !session_token)
             return res.status(400).send(`Failed getting thought's data`);
 
         const user = await getUserBySessionToken(session_token);
@@ -197,18 +202,30 @@ export const createNewThought = async (req: express.Request, res: express.Respon
 
 
 
+        if (tags.length > 0) {
+
+            for (const username of tags) {
+
+                const user = await getUserByUsername(username);
+                if (user) {
+                    userIDTags.push(user._id);
+
+                }
+            }
+        }
 
         const newThought = await createThought({
             user: user._id,
             content:
             {
-                body: body,
-                imageSource: `http://localhost:5000/assets/images/${image}`
+                text: text,
+                imageSource: image ? `http://localhost:5000/assets/images/${image}` : undefined,
+                tags: userIDTags
             },
 
         });
 
-        return res.status(200).json("newThought").send();
+        return res.status(200).json(newThought).send();
 
     } catch (error) {
         console.log(error);
@@ -255,8 +272,9 @@ export const addComment = async (req: express.Request, res: express.Response) =>
     try {
 
 
-        const { session_token, text } = req.body;
+        const { session_token, text, tags } = req.body;
         const thoughtID = req.params.thoughtID;
+        var userIDTags: ObjectId[] = [];
 
 
         if (!thoughtID || !text || !session_token)
@@ -272,15 +290,27 @@ export const addComment = async (req: express.Request, res: express.Response) =>
         if (!user)
             return res.status(400).send(`Could not authenticate user`);
 
+        if (tags.length > 0) {
+            for (const username of tags) {
+                const user = await getUserByUsername(username);
+                if (user) {
+                    userIDTags.push(user._id);
+                }
+            }
+        }
+
         const comment = await createComment({
             user: user._id,
             text: text,
-            created_at: Date.now()
+            created_at: Date.now(),
+            tags: userIDTags
+
         })
 
         const newComment = await addCommentToThought(thought._id, comment._id);
 
         return res.status(200).send(newComment);
+
 
     }
     catch (err) {
@@ -310,10 +340,10 @@ export const addLike = async (req: express.Request, res: express.Response) => {
         if (!user)
             return res.status(400).send(`Could not authenticate user`);
 
-        const newThought = await addUserLike(user._id, thought.id).catch(err => console.log("error"));
+        await addUserLike(user._id, thought.id);
 
 
-        return res.status(200).send(newThought);
+        return res.status(200).send("Liked successfully");
 
     }
     catch (err) {

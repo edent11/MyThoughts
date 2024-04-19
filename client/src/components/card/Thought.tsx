@@ -3,86 +3,73 @@ import { CiHeart } from 'react-icons/ci'
 import { FaHeart, FaCommentAlt } from 'react-icons/fa'
 import { User, useAuth } from '../../contexts/UserAuth'
 import LikesComments from './LikesComments'
-import LoadingButton from '../LoadingButton'
 import CommentsList from './CommentsList'
 import useSWR, { mutate } from 'swr'
-import { calcTimePassed } from '../shared/utils'
+import { calcTimePassed, fetcherData } from '../shared/utils'
 import ThoughtImage from './ThoughtImage'
-import CommentInput from './TextareaWithTags'
+import SubmitForm from '../CommentForm'
+import { UserData, ThoughtType } from '../shared/types/ThoughtTypes'
+import CommentForm from '../CommentForm'
+
 
 interface Props {
   thought: ThoughtType
 }
 
-interface UserData {
-  session_token: string | undefined;
-  text?: string;
-}
-
-export interface ThoughtType {
-  _id: string
-  user: User
-  content: {
-    body: string
-    imageSource: string
-  }
-  createdAt: Date
-
-}
 
 const Thought: React.FC<Props> = ({ thought }) => {
   const [isLiked, setIsLiked] = useState<Boolean | null>(null);
   const timePassed: string = calcTimePassed(thought.createdAt);
-  const [mutateLikes, setMutateLikes] = useState<boolean>(false);
+  // const [mutateLikes, setMutateLikes] = useState<boolean>(false);
   const [showComments, setShowComments] = useState<Boolean>(false);
-  const [isSendingComment, setIsSendingComment] = useState<boolean>(false);
-  const [commentText, setCommentText] = useState<string>('');
+  // const [isSendingComment, setIsSendingComment] = useState<boolean>(false);
+  // const [commentText, setCommentText] = useState<string>('');
   const [lineClamp, setLineClamp] = useState<number>(3);
 
-  const userData = {
+  const userData: UserData = {
     session_token: useAuth().getUser()?.session_token,
   };
 
-  const fetcher = async (url: string, body: UserData) => await fetch(url, {
-    method: 'POST', // or 'PUT', 'DELETE', etc. depending on your API
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  })
-    .then((res) => res.json())
+  // const fetcher = async (url: string, body: UserData) => await fetch(url, {
+  //   method: 'POST', // or 'PUT', 'DELETE', etc. depending on your API
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  //   body: JSON.stringify(body),
+  // })
+  //   .then((res) => res.json())
 
   const { data, error } = useSWR(`http://localhost:5000/thoughts/${thought._id}/isUserLiked`,
-    () => fetcher(`http://localhost:5000/thoughts/${thought._id}/isUserLiked`, userData));
+    () => fetcherData(`http://localhost:5000/thoughts/${thought._id}/isUserLiked`, userData));
 
 
   if (data && isLiked == null) {
     setIsLiked(data);
   }
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+  // const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
 
-    event.preventDefault();
-    setIsSendingComment(true);
-
-
-    try {
-      // ? Send a POST request with body parameters
-      fetcher(`http://localhost:5000/thoughts/${thought._id}/addComment`, { ...userData, text: commentText });
-
-      setTimeout(() => {
-        setIsSendingComment(false);
-        setCommentText('');
-
-      }, 700);
+  //   event.preventDefault();
+  //   setIsSendingComment(true);
 
 
-      mutate(`http://localhost:5000/thoughts/${thought._id}/comments`);
-    } catch (err) {
-      console.log(err)
-    }
+  //   try {
+  //     // ? Send a POST request with body parameters
+  //     fetcherData(`http://localhost:5000/thoughts/${thought._id}/addComment`, { ...userData, text: commentText });
 
-  };
+  //     setTimeout(() => {
+  //       setIsSendingComment(false);
+  //       setCommentText('');
+
+  //     }, 700);
+
+
+  //     mutate(`http://localhost:5000/thoughts/${thought._id}/comments`);
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+
+  // };
 
 
   const updateLikes = async () => {
@@ -99,7 +86,7 @@ const Thought: React.FC<Props> = ({ thought }) => {
         },
         body: JSON.stringify(userData) // Convert formData to JSON string
       });
-      setMutateLikes(true);
+      //setMutateLikes(true);
     } catch (err) {
       console.log(err)
     }
@@ -109,11 +96,10 @@ const Thought: React.FC<Props> = ({ thought }) => {
     setShowComments(prevState => !prevState);
   };
 
-  const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setCommentText(event.target.value);
-  };
+  // const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  //   setCommentText(event.target.value);
+  // };
 
-  console.log(thought.content.imageSource)
 
 
   return (
@@ -178,7 +164,26 @@ const Thought: React.FC<Props> = ({ thought }) => {
         </div>
 
         <div className="px-10 light:text-blue-900 mb-10" id="textArea">
-          <p id="text" className={`break-words font-info_story text-lg line-clamp-${lineClamp}`} onClick={() => setLineClamp(prev => prev + 1)}> {thought.content.body}</p>
+          <p
+            id="text"
+            className={`break-words font-info_story text-lg line-clamp-${lineClamp}`}
+            onClick={() => setLineClamp(prev => prev + 1)}>
+
+            <div className='space-x-2'>
+
+              {thought.content.tags.map((user, _) => {
+
+                //console.log(user.username);
+
+                return (
+                  <span key={user.username} className='text-blue-500'>@{user.username}</span>
+                );
+              })}
+            </div>
+
+
+            {thought.content.text}
+          </p>
         </div>
 
         <div id="commentsAndLikes" className="">
@@ -191,8 +196,8 @@ const Thought: React.FC<Props> = ({ thought }) => {
 
           <div>
             <div id="addAComment" className='relative'>
-              <form onSubmit={handleSubmit}>
-                <textarea
+              {/* <form onSubmit={handleSubmit}> */}
+              {/* <textarea
                   value={commentText}
                   onChange={handleCommentChange}
                   rows={3} // Adjust the number of visible rows as needed
@@ -209,10 +214,10 @@ const Thought: React.FC<Props> = ({ thought }) => {
                     isEnabled={commentText.length ? true : false}
                     buttonText="Send"
                     className='rounded-lg w-6 h-6 text-sm md:w-auto md:h-auto text-white transition delay-200 ' />
-                </div>
+                </div> */}
 
-                <CommentInput placeHolder='Enter comment here' />
-              </form>
+              <CommentForm placeHolder='Enter comment here' thoughtID={thought._id} />
+              {/* </form> */}
 
 
             </div>

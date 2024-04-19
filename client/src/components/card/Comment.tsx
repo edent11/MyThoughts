@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { User } from '../../contexts/UserAuth'
 import { calcTimePassed } from '../shared/utils'
+import { CommentType } from '../shared/types/ThoughtTypes'
 
 interface Props {
   comment: CommentType
 }
-
-export interface CommentType {
-  user: User
-  text: string
-  createdAt: Date
-}
-
-
 
 const Comment: React.FC<Props> = ({ comment }) => {
 
@@ -51,7 +44,25 @@ const Comment: React.FC<Props> = ({ comment }) => {
         </label>
       </div>
       <div id="comment-txt-wrapper" className="ml-8 w-[90%] ">
-        <p id="comment-txt" className={`break-words cursor-pointer line-clamp-${lineClamp} `} onClick={() => setLineClamp(prev => prev + 2)}> {comment.text}</p>
+        <p
+          id="comment-txt"
+          className={`break-words cursor-pointer line-clamp-${lineClamp} `}
+          onClick={() => setLineClamp(prev => prev + 2)}>
+
+          <div className='space-x-2'>
+            {
+              comment.tags.map((user: { 'username': string }, _) => {
+
+                console.log(user)
+                return (
+                  <span key={user.username} className='text-blue-500'>@{user.username}</span>
+                )
+              })
+            }
+          </div>
+          {comment.text}
+
+        </p>
       </div>
     </div>
   )

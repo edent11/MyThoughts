@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react'
 import { User, useAuth } from '../../contexts/UserAuth'
-import Comment, { CommentType } from './Comment'
+import Comment from './Comment'
 import useSWR, { mutate } from 'swr'
 import LoadingSvg from '../LoadingSvg'
+import { CommentType } from '../shared/types/ThoughtTypes'
 
 
 interface Props {
@@ -30,7 +31,7 @@ const Comments: React.FC<Props> = ({ thoughtID }) => {
 
         {isLoading ? <LoadingSvg /> :
           commentsList?.map((comment) => {
-            return <Comment comment={comment} />
+            return <Comment key={comment._id} comment={comment} />
           })}
       </div>
 

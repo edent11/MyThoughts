@@ -1,105 +1,78 @@
-import React, { FormEvent, useState, useRef, useEffect } from 'react'
+import React, { FormEvent, useState, useRef, useEffect, ReactNode, ChangeEvent } from 'react'
 import { User, useAuth } from '../../contexts/UserAuth'
+import { IoIosCloseCircle } from "react-icons/io";
 import LoadingButton from '../LoadingButton';
 import useSWR from 'swr';
+import { ObjectId } from 'mongodb';
+import { TagData } from '../shared/types/ThoughtTypes';
+import { fetcherData } from '../shared/utils';
 
 
 type Props = {
-    placeHolder: string
+    placeHolder: string,
+    children?: ReactNode,
+    className?: string,
+    text: string
+    handleTextChange: (newValue: string) => void;
+    tags: string[];
+    addTag: (newTag: string) => void;
+    removeTag: (tagToDelete: string) => void;
 }
 
-type TagData = {
-    session_token: string | undefined;
-    usernameSubstring?: string;
-}
 
-const CommentInput: React.FC<Props> = ({ placeHolder }) => {
+const TextareaWithTags: React.FC<Props> = ({ placeHolder, children, className, text, handleTextChange, tags, addTag, removeTag }) => {
 
-
+    const contentEditableRef = useRef<HTMLTextAreaElement>(null);
+    const dropdownUsersRef = useRef<HTMLDivElement>(null);
     const user: User | null = useAuth().getUser();
+    const [tagString, setTagString] = useState<string>('X');
     const [tagUsersList, setTagUsersList] = useState<User[] | null>();
 
     const tagData: TagData = {
         session_token: user?.session_token,
-        usernameSubstring: ''
     }
-
-    const fetcher = async (url: string, tagData: TagData) => await fetch(url, {
-        method: 'POST', // or 'PUT', 'DELETE', etc. depending on your API
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(tagData),
-    })
-        .then((res) => res.json())
-        .then((data) => setTagUsersList(data));
-
-
-    const [inputText, setInputText] = useState<string>('');
-    const [tagString, setTagString] = useState<string>('');
-    const divRef = useRef<HTMLDivElement>(null);
-
-
 
 
     useEffect(() => {
-        if (tagString && tagString != '')
-            fetcher('http://localhost:5000/taggedUsers', { ...tagData, usernameSubstring: tagString })
 
+        if (tagString != 'X') {
+
+            fetcherData('http://localhost:5000/taggedUsers', { ...tagData, usernameSubstring: tagString, already_tagged: tags.map(username => username) })
+                .then((data: User[]) => setTagUsersList(data));
+
+        }
         else {
+
             setTagUsersList(null);
         }
-
 
     }, [tagString])
 
 
 
+    const handleInput = (event: ChangeEvent<HTMLTextAreaElement>) => {
 
+        event.preventDefault();
 
+        const newText = event.target.value;
 
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
-
-        // event.preventDefault();
-        // setIsSendingComment(true);
-
-
-        // try {
-        //     // ? Send a POST request with body parameters
-        //     fetcher(`http://localhost:5000/thoughts/${thought._id}/addComment`, { ...userData, text: commentText });
-
-        //     setTimeout(() => {
-        //         setIsSendingComment(false);
-        //         setCommentText('');
-
-        //     }, 700);
-
-
-        //     mutate(`http://localhost:5000/thoughts/${thought._id}/comments`);
-        // } catch (err) {
-        //     console.log(err)
-        // }
-
-    };
-
-
-
-
-
-    const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
-
-        const newText = event.currentTarget.innerText;
         const tagIndex = newText.lastIndexOf(' @');
 
-
-        if (tagIndex != -1 || newText.lastIndexOf('@') == 0) {
+        if (tagIndex != -1 || newText?.lastIndexOf('@') == 0) {
 
             const tagString = newText.substring(tagIndex + 2);
-            console.log(tagString);
             setTagString(tagString);
         }
-        setInputText(newText);
+        else {
+            setTagString('X');
+        }
+
+        handleTextChange(newText);
+
     };
+
+
+
 
     const renderBoldUser = (username: string): JSX.Element => {
 
@@ -118,62 +91,108 @@ const CommentInput: React.FC<Props> = ({ placeHolder }) => {
         )
     };
 
+    // const applyStyleToText = (text: string, indexes: number[], style: string) => {
+    //     let result = '';
+
+    //     result += `<span style="${style}">${text}</span>`;
+
+    //     return result;
+    // };
+
+    const handleTagClick = (username: string) => {
+
+        handleTextChange(text.slice(0, text.indexOf('@')));
+        if (contentEditableRef.current) {
+            contentEditableRef.current.innerText = text;
+        }
+        addTag(username);
+        setTagString('X');
+
+    };
+
+    const handleRemoveTag = (username: string) => {
+
+        removeTag(username);
+
+    };
+
+
+
 
 
     return (
-        <div id="addAComment" className='relative'>
-            <form onSubmit={handleSubmit}>
+        <div id="addAComment" className={className}>
 
-                <div className='relative'>
+            <div className='relative flex flex-col w-full'>
 
+                <div className='flex flex-row gap-2 my-2 w-[90%] flex-wrap pl-2'>
+                    {tags.length == 0 ? `You can tag other users using @` : 'Tagged Users: '}
 
-                    {/* Conditionally render placeholder text */}
-                    {inputText === '' && (
-                        <span style={{ color: '#aaa', position: 'absolute', top: '16px', left: '14px' }}>{placeHolder + '...'}</span>
-                    )}
+                    {tags.map((username, index) => {
 
-                    <div
-                        contentEditable
-                        ref={divRef}
-                        onInput={handleInput}
-                        className={`p-2 pr-20 rounded-md md:h-22 md:p-4 md:h-20 h-12 w-[98%] resize-none bg-gray-200 dark:bg-gray-600 overflow-auto`}>
+                        return (
+                            <div className='flex flex-row h-full bg-blue-300 items-center cursor-pointer' key={username}>
+                                <span contentEditable={false} className='text-blue-500 font-bold bg-gray-100 h-[25px]'>@{username + ' '} </span>
+                                <IoIosCloseCircle size={20} onClick={() => handleRemoveTag(username)} />
+                            </div>
+                        )
 
-
-
-                    </div>
-                    {
-                        tagUsersList && <div className='absolute top-0 right-0 w-[120px] flex flex-col bg-gray-200 rounded-lg dark:bg-gray-700'>
-                            <ul>
-
-                                {tagUsersList.map((user, index) => {
-                                    return (
-
-                                        <li
-                                            key={index}
-                                            className='p-2 flex flex-row items-center gap-4  rounded-lg transition delay-[300] hover:bg-purple-500   cursor-pointer border-gray-700'>
-                                            <img src={user.avatar} alt="" className='size-6 ring-1 ring-white rounded-full' />
-                                            {renderBoldUser(user.username)}
-
-                                        </li>
-                                    )
-
-                                })}
-
-                            </ul>
-
-                        </div>
-                    }
-
+                    })}
 
 
                 </div>
-            </form>
 
+
+                <div className={`relative flex flex-row p-2 pr-20 rounded-md h-12 md:h-28 md:p-4  w-[98%]  bg-gray-200 dark:bg-gray-600 `}>
+
+                    <textarea
+
+                        placeholder={placeHolder + '...'}
+                        ref={contentEditableRef}
+                        value={text}
+                        onChange={handleInput}
+                        className={`w-[80%] resize-none overflow-x-hidden h-full bg-gray-200 dark:bg-gray-600 overflow-auto outline-none`}
+                    />
+
+
+                </div>
+
+
+
+            </div>
+            {
+                tagUsersList && <div
+                    className='inline-block w-[120px] flex-col bg-gray-200 rounded-lg dark:bg-gray-700'
+
+                    ref={dropdownUsersRef}>
+                    <ul>
+
+                        {tagUsersList.map((user, index) => {
+                            return (
+
+                                <li
+                                    key={user._id}
+                                    className='p-2 flex flex-row items-center gap-4  rounded-lg transition delay-[300] hover:bg-purple-500  cursor-pointer border-gray-700'
+                                    onClick={() => handleTagClick(user.username)}>
+                                    <img src={user.avatar} alt="" className='size-6 ring-1 ring-white rounded-full' />
+                                    {renderBoldUser(user.username)}
+
+                                </li>
+                            )
+
+                        })}
+
+                    </ul>
+
+                </div>
+            }
 
             <div>
 
 
             </div>
+
+            {children}
 
 
         </div>
@@ -182,4 +201,4 @@ const CommentInput: React.FC<Props> = ({ placeHolder }) => {
 
 }
 
-export default CommentInput
+export default TextareaWithTags

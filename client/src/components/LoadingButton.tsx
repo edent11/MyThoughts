@@ -1,8 +1,11 @@
 import React, { FormEvent, useState } from 'react'
+import { useAuth } from '../contexts/UserAuth';
+
 
 
 
 type Props = {
+
     className?: string;
     onClick?: () => void | Promise<void> | undefined;
     isLoading: boolean;
@@ -13,9 +16,13 @@ type Props = {
 
 const LoadingButton: React.FC<Props> = ({ className, onClick, isLoading, buttonText, isEnabled }) => {
 
+    const isAuthenticated = useAuth().isAuthenticated;
+
 
     const handleClick = () => {
-        if (onClick)
+        if (!isAuthenticated)
+            throw new Error("Only registered users are allowed to post")
+        else if (onClick)
             onClick();
     };
 

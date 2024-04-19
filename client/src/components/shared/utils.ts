@@ -1,3 +1,6 @@
+import { User } from "../../contexts/UserAuth";
+import { TagData, UserData } from "./types/ThoughtTypes";
+
 export const calcTimePassed = (createdAt: Date): string => {
 
     var postTime: Date;
@@ -40,3 +43,19 @@ export const calcTimePassed = (createdAt: Date): string => {
 }
 
 export const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+export const fetcherData = async (url: string, body: any) => await fetch(url, {
+    method: 'POST', // or 'PUT', 'DELETE', etc. depending on your API
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body)
+})
+    .then((res) => res.json())
+
+export const fetchFormData = async (url: string, body: FormData) => await fetch(url, {
+
+    method: 'POST', // or 'PUT', 'DELETE', etc. depending on your API
+    body: body
+})
+

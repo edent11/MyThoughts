@@ -4,6 +4,7 @@ import {
     allThoughtsWithoutLikes, createNewThought, addLike, addComment, isUserLikedThought,
     getThoughtByID, makeUnLike, getThoughtLikesByID, getAllComments, getCommentsLength
 } from '../controllers/thoughts'
+import bodyParser from 'body-parser';
 
 
 const router = express.Router();
@@ -11,7 +12,7 @@ const router = express.Router();
 // Set up multer to handle multipart/form-data
 const upload = multer({ dest: 'assets/images' }); // Specify the directory to which files will be uploaded
 
-
+router.use(bodyParser.urlencoded({ extended: true }));
 // Route to render all images
 // router.get('/feed', displayAllThoughts);
 router.get('/thoughts', allThoughtsWithoutLikes);

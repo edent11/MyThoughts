@@ -7,7 +7,7 @@ interface Comment {
     user: mongoose.Schema.Types.ObjectId;
     text: string;
     createdAt: Date;
-    likes: [mongoose.Schema.Types.ObjectId];
+    tags: [mongoose.Schema.Types.ObjectId];
 
 }
 
@@ -16,12 +16,14 @@ interface Thought {
     createdAt: Date;
     content: {
         text: string;
-        imageSource: string;
+        imageSource: string | null;
+        tags: [mongoose.Schema.Types.ObjectId]
     }
 
     comments: [mongoose.Schema.Types.ObjectId];
     likes: [mongoose.Schema.Types.ObjectId];
-    uniqueArrayField: [string]
+
+
 }
 
 // Extend the Document interface to include the fields from the Thought interface
@@ -43,7 +45,9 @@ const commentSchema = new mongoose.Schema<Comment>({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+
+    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users', default: [] }],
 
 });
 
@@ -61,12 +65,15 @@ const thoughtSchema = new mongoose.Schema<ThoughtDocument>({
         default: Date.now
     },
     content: {
-        body: { type: String, required: true },
+        text: { type: String, required: true },
         imageSource: { type: String, required: false },
+        tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users', default: [] }],
     },
-    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: [] }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: [] },],
 
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users', default: [] }],
+
+
 
 });
 
@@ -86,9 +93,9 @@ const duplicateValues = (likes: mongoose.Schema.Types.ObjectId[]) => {
 
 };
 
-export const ThoughtsModel: Model<ThoughtDocument> = mongoose.model<ThoughtDocument>('thoughts', thoughtSchema);
-
 thoughtSchema.path('likes').validate(duplicateValues);
+
+export const ThoughtsModel: Model<ThoughtDocument> = mongoose.model<ThoughtDocument>('thoughts', thoughtSchema);
 
 export const CommentModel = mongoose.model('Comment', commentSchema);
 
@@ -98,7 +105,10 @@ export const CommentModel = mongoose.model('Comment', commentSchema);
 
 
 
-export const getThoughts = () => ThoughtsModel.find().populate('user');
+export const getThoughts = () => ThoughtsModel.find().select('-comments -likes').populate('user').populate({
+    path: 'content.tags', // Specify the field to populate
+    select: '-_id username' // Specify the fields to include from the populated documents
+});
 
 
 // .then(async thoughts => {
@@ -162,11 +172,30 @@ export const unLike = (thoughtID: ObjectId, userID: ObjectId) => ThoughtsModel.u
             throw new Error('Could not make unlike')
     })
 
-export const getComments = (thoughtID: string) => ThoughtsModel.findById(thoughtID).populate('comments').then(thought => {
+export const getComments = async (thoughtID: string) => ThoughtsModel.findById(thoughtID).populate('comments').then(thought => {
 
     const populatedComments = CommentModel.populate(thought?.comments, { path: 'user' }).then(comments => {
-        return comments;
+
+        return CommentModel.populate(comments, {
+            path: 'tags', // Specify the field to populate
+            select: '-_id username' // Specify the fields to include from the populated documents
+        }).then(comments => {
+            //console.log(comments)
+            return comments;
+        })
     });
+
+
+
+    // const populatedTags = CommentModel.populate(thought?.comments, {
+    //     path: 'tags', // Specify the field to populate
+    //     select: '-_id username' // Specify the fields to include from the populated documents
+    // }).then(comments => {
+    //     //console.log(comments)
+    //     console.log(comments);
+    //     return comments;
+
+    // });
 
     return populatedComments;
 

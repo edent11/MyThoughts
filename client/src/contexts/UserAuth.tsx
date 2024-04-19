@@ -3,6 +3,7 @@ import useSWR, { mutate } from 'swr'
 import { useLocalStorage } from 'usehooks-ts'
 
 export interface User {
+  _id: string
   username: string
   avatar: string
   session_token: string
@@ -90,6 +91,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
           setAuthState({
             isAuthenticated: true,
             user: {
+              _id: userDetails._id,
               username: userDetails.username,
               avatar: userDetails.avatar,
               session_token: session_token,
@@ -136,8 +138,8 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, register, logout, getUser }}
-    >
+      value={{ isAuthenticated, login, register, logout, getUser }}>
+
       {children}
     </AuthContext.Provider>
   )

@@ -7,10 +7,10 @@ export const register = async (req: express.Request, res: express.Response) => {
 
     try {
 
-        const { username, password, avatar } = req.body;
+        const { username, password, avatarImg } = req.body;
 
-        if (!username || !password || !avatar)
-            return res.status(400).send('No username or password provided');
+        if (!username || !password || !avatarImg)
+            return res.status(400).send('No username, password or avatar was provided');
 
         const existingUser = await getUserByUsername(username);
 
@@ -20,6 +20,7 @@ export const register = async (req: express.Request, res: express.Response) => {
         }
 
         const salt = random();
+        const avatar = `http://localhost:5000/avatars/${avatarImg}`;
 
         const user = await createUser({
             username,
@@ -85,18 +86,3 @@ export const login = async (req: express.Request, res: express.Response) => {
 
 }
 
-export const getAllUsers = async (req: express.Request, res: express.Response) => {
-
-    try {
-
-        const usersList = await getUsers()
-            .then(users => { return users })
-            .catch(error => { throw new Error(error.message) });
-
-        return res.status(400).json(usersList).send();
-    }
-    catch (error) {
-        if (error instanceof Error)
-            return res.status(400).send(error.message);
-    }
-}
