@@ -9,6 +9,24 @@ export interface User {
   session_token: string
 }
 
+export interface UserNotification  {
+  _id: string
+  username: string
+  avatar: string
+  sessi
+}
+
+export interface UserProfileData {
+  user: User
+  thoughts: number
+  comments: number
+  commentsReceived: number
+  likes: number
+  likesReceived: number
+  tags: number
+
+}
+
 export interface LoginData {
   username: string
   password: string

@@ -35,6 +35,7 @@ export type ThoughtType = {
 export type SubmitThought = SubmitComment & {
 
     image: File | null
+
 }
 
 export type CommentType = {

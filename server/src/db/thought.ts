@@ -34,7 +34,7 @@ const commentSchema = new mongoose.Schema<Comment>({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'users',
+        ref: 'Users',
 
     },
     text: {
@@ -47,7 +47,7 @@ const commentSchema = new mongoose.Schema<Comment>({
         default: Date.now
     },
 
-    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users', default: [] }],
+    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users', default: [] }],
 
 });
 
@@ -58,7 +58,7 @@ const thoughtSchema = new mongoose.Schema<ThoughtDocument>({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'users'
+        ref: 'Users'
     },
     createdAt: {
         type: Date,
@@ -67,11 +67,11 @@ const thoughtSchema = new mongoose.Schema<ThoughtDocument>({
     content: {
         text: { type: String, required: true },
         imageSource: { type: String, required: false },
-        tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users', default: [] }],
+        tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users', default: [] }],
     },
-    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: [] },],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comments', default: [] },],
 
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users', default: [] }],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users', default: [] }],
 
 
 
@@ -95,9 +95,9 @@ const duplicateValues = (likes: mongoose.Schema.Types.ObjectId[]) => {
 
 thoughtSchema.path('likes').validate(duplicateValues);
 
-export const ThoughtsModel: Model<ThoughtDocument> = mongoose.model<ThoughtDocument>('thoughts', thoughtSchema);
+export const ThoughtsModel: Model<ThoughtDocument> = mongoose.model<ThoughtDocument>('Thoughts', thoughtSchema);
 
-export const CommentModel = mongoose.model('Comment', commentSchema);
+export const CommentModel = mongoose.model('Comments', commentSchema);
 
 
 
@@ -109,6 +109,83 @@ export const getThoughts = () => ThoughtsModel.find().select('-comments -likes')
     path: 'content.tags', // Specify the field to populate
     select: '-_id username' // Specify the fields to include from the populated documents
 });
+
+
+export const getUserCommentsCountDB = (userID: ObjectId): Promise<Number> => ThoughtsModel.aggregate([
+
+    // Unwind the comments array to create a separate document for each comment
+    { $unwind: '$comments' },
+    // Match comments made by the user
+    { $match: { user: userID } },
+    // Count the number of comments made by the user
+    { $count: 'totalCommentsMade' }
+
+]).then((result) => result[0] ? result[0].totalCommentsMade : 0)
+    .catch(error => error);
+
+
+export const getUserCommentsReceivedCountDB = (userID: ObjectId): Promise<Number> => ThoughtsModel.aggregate([
+
+    { $match: { user: userID } },
+    // Unwind the comments array to create a separate document for each comment
+    { $unwind: '$comments' },
+    // Match comments made by the user
+    { $match: { user: userID } },
+    // Count the number of comments made by the user
+    { $count: 'totalCommentsMade' }
+
+]).then((result) => result[0] ? result[0].totalCommentsMade : 0)
+    .catch(error => error);
+
+export const getUserLikesCountDB = (userID: ObjectId): Promise<Number> => ThoughtsModel.aggregate([
+    // Match thoughts where the user has liked
+    { $match: { likes: userID } },
+    // Unwind the likes array to create a separate document for each like
+    { $unwind: '$likes' },
+    // Group by thought ID to count the number of distinct thoughts liked by the user
+    { $group: { _id: '$_id' } },
+    // Count the number of distinct thoughts liked by the user
+    { $count: 'totalThoughtsLiked' }
+
+]).then((result) => result[0] ? result[0].totalThoughtsLiked : 0)
+    .catch(error => error);
+
+
+export const getUserLikesReceivedCountDB = (userID: ObjectId): Promise<Number> => ThoughtsModel.aggregate([
+    // Match thoughts where the user has liked
+    { $match: { user: userID } },
+    // Unwind the likes array to create a separate document for each like
+    { $unwind: '$likes' },
+    // Count the number of distinct thoughts liked by the user
+    { $count: 'totalThoughtsLiked' }
+
+]).then((result) => result[0] ? result[0].totalThoughtsLiked : 0)
+    .catch(error => error);
+
+export const getUserTaggedCountDB = (userID: ObjectId): Promise<Number> => ThoughtsModel.aggregate([
+    // Match thoughts where the user has liked
+    { $match: { 'content.tags': userID } },
+    // Unwind the likes array to create a separate document for each like
+    { $unwind: '$likes' },
+    // Group by thought ID to count the number of distinct thoughts liked by the user
+    { $group: { _id: '$_id' } },
+    // Count the number of distinct thoughts liked by the user
+    { $count: 'totalTagsCount' }
+
+]).then((result) => result[0] ? result[0].totalTagsCount : 0)
+    .catch(error => error);
+
+
+
+export const getUserThoughtsCountDB = (userID: ObjectId): Promise<Number> => ThoughtsModel.aggregate([
+    // Match thoughts created by the user
+    { $match: { user: userID } },
+    // Count the number of thoughts created by the user
+    { $count: 'totalThoughtsCreated' }
+
+]).then((result) => result[0] ? result[0].totalThoughtsCreated : 0)
+    .catch(error => error);
+
 
 
 // .then(async thoughts => {
@@ -187,41 +264,18 @@ export const getComments = async (thoughtID: string) => ThoughtsModel.findById(t
 
 
 
-    // const populatedTags = CommentModel.populate(thought?.comments, {
-    //     path: 'tags', // Specify the field to populate
-    //     select: '-_id username' // Specify the fields to include from the populated documents
-    // }).then(comments => {
-    //     //console.log(comments)
-    //     console.log(comments);
-    //     return comments;
 
-    // });
 
     return populatedComments;
 
 }).catch(error => console.log(error));
 
-// export const isUserLikedThought = (thoughtID: string, userID: string) => ThoughtsModel.findById(thoughtID).select('likes').then(thought => {
 
-//     const populatedComments = CommentModel.populate(thought?.comments, { path: 'user' }).then(comments => {
-//         return comments;
-//     });
-
-//     return populatedComments;
-
-// }).catch(error => console.log(error));
-
-
-
-
-// export const getAllThoughtsID = () => ThoughtsModel.find().select('_id');
 
 export const getThoughtsByUsername = (username: string) => ThoughtsModel.findOne({ 'user.username': username });
 
 export const getThoughtsLik = () => ThoughtsModel.find({ likes: undefined });
 
-
-// export const getThoughtByKeyword = (sessionToken: string) => UserModel.findOne({ 'authentication.sessionToken': sessionToken });
 
 export const getThoughtById = (tid: string) => ThoughtsModel.findById(tid);
 
@@ -240,17 +294,4 @@ export const addCommentToThought = (thoughtID: ObjectId, commentID: ObjectId) =>
         { new: true }) // Return the updated post document after the update operation
 }
 
-// export const addLikeToThought = (thoughtID: ObjectId, userID: ObjectId) => {
-//     return ThoughtsModel.findOneAndUpdate(
-//         { _id: thoughtID }, // Replace with the ObjectId of the post
-//         { $push: { likes: userID } }, // Push the ID of the new comment to the comments array
-//         { new: true, runValidators: true, context: 'query' })
-//     // Return the updated post document after the update operation
-// }
 
-
-
-
-// export const deleteUserById = (uid: string) => UserModel.findOneAndDelete({ _id: uid });
-
-// export const updateUserById = (uid: string, values: Record<string, any>) => UserModel.findByIdAndUpdate(uid, values);

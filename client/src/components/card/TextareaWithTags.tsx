@@ -121,9 +121,9 @@ const TextareaWithTags: React.FC<Props> = ({ placeHolder, children, className, t
 
 
     return (
-        <div id="addAComment" className={className}>
+        <div className={className}>
 
-            <div className='relative flex flex-col w-full'>
+            <div className='relative flex flex-col w-full '>
 
                 <div className='flex flex-row gap-2 my-2 w-[90%] flex-wrap pl-2'>
                     {tags.length == 0 ? `You can tag other users using @` : 'Tagged Users: '}
@@ -131,9 +131,9 @@ const TextareaWithTags: React.FC<Props> = ({ placeHolder, children, className, t
                     {tags.map((username, index) => {
 
                         return (
-                            <div className='flex flex-row h-full bg-blue-300 items-center cursor-pointer' key={username}>
-                                <span contentEditable={false} className='text-blue-500 font-bold bg-gray-100 h-[25px]'>@{username + ' '} </span>
-                                <IoIosCloseCircle size={20} onClick={() => handleRemoveTag(username)} />
+                            <div className='flex flex-row h-full bg-white rounded-full items-center' key={username}>
+                                <span contentEditable={false} className=' font-bold bg-purple-600 h-[25px]'>@{username + ' '} </span>
+                                <IoIosCloseCircle size={20} onClick={() => handleRemoveTag(username)} className='cursor-pointer text-purple-600' />
                             </div>
                         )
 
@@ -143,7 +143,7 @@ const TextareaWithTags: React.FC<Props> = ({ placeHolder, children, className, t
                 </div>
 
 
-                <div className={`relative flex flex-row p-2 pr-20 rounded-md h-12 md:h-28 md:p-4  w-[98%]  bg-gray-200 dark:bg-gray-600 `}>
+                <div className={`relative flex flex-row p-2 pr-20 rounded-md w-[98%] h-12 md:h-28 md:p-4 bg-gray-200 dark:bg-gray-600 cursor-text`}>
 
                     <textarea
 
@@ -151,7 +151,7 @@ const TextareaWithTags: React.FC<Props> = ({ placeHolder, children, className, t
                         ref={contentEditableRef}
                         value={text}
                         onChange={handleInput}
-                        className={`w-[80%] resize-none overflow-x-hidden h-full bg-gray-200 dark:bg-gray-600 overflow-auto outline-none`}
+                        className={`w-[80%] resize-none overflow-x-hidden h-full bg-gray-200 dark:bg-gray-600 overflow-auto outline-none `}
                     />
 
 
@@ -172,7 +172,7 @@ const TextareaWithTags: React.FC<Props> = ({ placeHolder, children, className, t
 
                                 <li
                                     key={user._id}
-                                    className='p-2 flex flex-row items-center gap-4  rounded-lg transition delay-[300] hover:bg-purple-500  cursor-pointer border-gray-700'
+                                    className='p-2 flex flex-row items-center gap-4  rounded-lg transition delay-[300] hover:bg-purple-500 cursor-pointer border-gray-700'
                                     onClick={() => handleTagClick(user.username)}>
                                     <img src={user.avatar} alt="" className='size-6 ring-1 ring-white rounded-full' />
                                     {renderBoldUser(user.username)}

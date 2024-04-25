@@ -3,12 +3,16 @@ import express from 'express'
 import {
     createThought, getThoughtById, getThoughts, getThoughtsLik,
     getLikesByThoughtID, isUserLiked, getComments, addCommentToThought,
-    unLike, getCommentsNumber, createComment, addUserLike, getThoughtsByUsername
+    unLike, getCommentsNumber, createComment, addUserLike, getThoughtsByUsername,
+    ThoughtsModel
 } from '../db/thought'
-import { getUserBySessionToken, getUserByUsername, getUserIDByUsername } from '../db/user'
+import { getUserBySessionToken, getUserByUsernameDB, getUserIDByUsername } from '../db/user'
 import { get } from 'http';
 import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
+import { createNotification } from './notifications';
+import { addNotificationToUser } from './users';
+import { createNotificationDB } from '../db/notification';
 
 
 
@@ -190,32 +194,37 @@ export const createNewThought = async (req: express.Request, res: express.Respon
         const { text, session_token, tags } = req.body;
         const image = req.file?.filename;
 
+
         var userIDTags: ObjectId[] = [];
 
         if (!text || !session_token)
             return res.status(400).send(`Failed getting thought's data`);
 
-        const user = await getUserBySessionToken(session_token);
+        const authorUser = await getUserBySessionToken(session_token);
 
-        if (!user)
+        if (!authorUser)
             return res.status(400).send('Cannot authenticate user');
 
+        const tagsArray = tags.split(',');
+
+        await Promise.all(tagsArray.map(async (username: string) => {
+
+            console.log(username)
+            const taggedUser = await getUserByUsernameDB(username);
+            if (taggedUser) {
+
+                userIDTags.push(taggedUser._id);
 
 
-        if (tags.length > 0) {
+                const notification = await createNotification(taggedUser._id, authorUser._id, "thought", "tagged you in his thought")
+                await addNotificationToUser(taggedUser._id, notification._id)
 
-            for (const username of tags) {
-
-                const user = await getUserByUsername(username);
-                if (user) {
-                    userIDTags.push(user._id);
-
-                }
             }
-        }
+
+        }));
 
         const newThought = await createThought({
-            user: user._id,
+            user: authorUser._id,
             content:
             {
                 text: text,
@@ -224,6 +233,8 @@ export const createNewThought = async (req: express.Request, res: express.Respon
             },
 
         });
+
+
 
         return res.status(200).json(newThought).send();
 
@@ -292,7 +303,7 @@ export const addComment = async (req: express.Request, res: express.Response) =>
 
         if (tags.length > 0) {
             for (const username of tags) {
-                const user = await getUserByUsername(username);
+                const user = await getUserByUsernameDB(username);
                 if (user) {
                     userIDTags.push(user._id);
                 }

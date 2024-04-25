@@ -85,7 +85,7 @@ const ThoughtForm: React.FC<Props> = ({ placeHolder, children }) => {
     const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
         const selectedImage = event.target.files && event.target.files[0];
         if (selectedImage) {
-            setThoughtData({ ...thoughtData, image: selectedImage });
+            // setThoughtData({ ...thoughtData, image: selectedImage });
             const objectUrl = URL.createObjectURL(selectedImage)
             setPreview(objectUrl)
         }
@@ -153,7 +153,7 @@ const ThoughtForm: React.FC<Props> = ({ placeHolder, children }) => {
                 {preview ? <FaExchangeAlt /> : <MdAddPhotoAlternate size={40} className='text-purple-700 dark:text-white' />}
 
 
-                {preview ? (`${thoughtData.image?.name}`) : 'Click here to upload an image'}
+                {/* {preview ? (`${thoughtData.image?.name}`) : 'Click here to upload an image'} */}
 
             </label>
 

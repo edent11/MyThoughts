@@ -26,7 +26,8 @@ const Comments: React.FC<Props> = ({ thoughtID }) => {
 
 
       <div className="my-4 flex flex-col items-center gap-4 overflow-auto max-h-52 md:max-h-80 min-h-24
-       scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-purple-700 scrollbar-track-white dark:scrollbar-track-gray-700 overflow-y-auto">
+       scrollbar-thumb-rounded-full scrollbar-track-rounded-full
+        scrollbar scrollbar-thumb-purple-700 scrollbar-track-white dark:scrollbar-track-gray-700 overflow-y-auto">
 
 
         {isLoading ? <LoadingSvg /> :

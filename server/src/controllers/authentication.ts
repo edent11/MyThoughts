@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { createUser, getUserByUsername, getUsers } from '../db/user'
+import { createUser, getUserByUsernameDB } from '../db/user'
 import { authentication, random } from '../helpers/helpers'
 
 export const register = async (req: express.Request, res: express.Response) => {
@@ -12,7 +12,7 @@ export const register = async (req: express.Request, res: express.Response) => {
         if (!username || !password || !avatarImg)
             return res.status(400).send('No username, password or avatar was provided');
 
-        const existingUser = await getUserByUsername(username);
+        const existingUser = await getUserByUsernameDB(username);
 
         if (existingUser) {
 
@@ -51,7 +51,7 @@ export const login = async (req: express.Request, res: express.Response) => {
         if (!username || !password)
             return res.status(400).send('No username or password was provided');
 
-        const user = await getUserByUsername(username).select('+authentication.salt +authentication.password');
+        const user = await getUserByUsernameDB(username).select('+authentication.salt +authentication.password');
 
         if (!user || !user.authentication) {
             return res.status(400).send('User is not exist');

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useReducer, FormEvent } from 'react'
+
 import { CiHeart } from 'react-icons/ci'
 import { FaHeart, FaCommentAlt } from 'react-icons/fa'
 import { User, useAuth } from '../../contexts/UserAuth'
@@ -8,8 +9,10 @@ import useSWR, { mutate } from 'swr'
 import { calcTimePassed, fetcherData } from '../shared/utils'
 import ThoughtImage from './ThoughtImage'
 import SubmitForm from '../CommentForm'
-import { UserData, ThoughtType } from '../shared/types/ThoughtTypes'
+import { UserData, ThoughtType, SubmitComment } from '../shared/types/ThoughtTypes'
 import CommentForm from '../CommentForm'
+import TextForm from '../TextForm'
+import { useNavigate } from 'react-router-dom'
 
 
 interface Props {
@@ -17,27 +20,23 @@ interface Props {
 }
 
 
+
+
 const Thought: React.FC<Props> = ({ thought }) => {
   const [isLiked, setIsLiked] = useState<Boolean | null>(null);
   const timePassed: string = calcTimePassed(thought.createdAt);
-  // const [mutateLikes, setMutateLikes] = useState<boolean>(false);
   const [showComments, setShowComments] = useState<Boolean>(false);
-  // const [isSendingComment, setIsSendingComment] = useState<boolean>(false);
-  // const [commentText, setCommentText] = useState<string>('');
   const [lineClamp, setLineClamp] = useState<number>(3);
+  const navigate = useNavigate();
+
 
   const userData: UserData = {
     session_token: useAuth().getUser()?.session_token,
   };
 
-  // const fetcher = async (url: string, body: UserData) => await fetch(url, {
-  //   method: 'POST', // or 'PUT', 'DELETE', etc. depending on your API
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify(body),
-  // })
-  //   .then((res) => res.json())
+
+
+
 
   const { data, error } = useSWR(`http://localhost:5000/thoughts/${thought._id}/isUserLiked`,
     () => fetcherData(`http://localhost:5000/thoughts/${thought._id}/isUserLiked`, userData));
@@ -47,29 +46,12 @@ const Thought: React.FC<Props> = ({ thought }) => {
     setIsLiked(data);
   }
 
-  // const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmitComment = async (commentData: SubmitComment): Promise<string> => {
 
-  //   event.preventDefault();
-  //   setIsSendingComment(true);
+    return fetcherData(`http://localhost:5000/thoughts/${thought._id}/addComment`, commentData);
 
+  };
 
-  //   try {
-  //     // ? Send a POST request with body parameters
-  //     fetcherData(`http://localhost:5000/thoughts/${thought._id}/addComment`, { ...userData, text: commentText });
-
-  //     setTimeout(() => {
-  //       setIsSendingComment(false);
-  //       setCommentText('');
-
-  //     }, 700);
-
-
-  //     mutate(`http://localhost:5000/thoughts/${thought._id}/comments`);
-  //   } catch (err) {
-  //     console.log(err)
-  //   }
-
-  // };
 
 
   const updateLikes = async () => {
@@ -96,10 +78,6 @@ const Thought: React.FC<Props> = ({ thought }) => {
     setShowComments(prevState => !prevState);
   };
 
-  // const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-  //   setCommentText(event.target.value);
-  // };
-
 
 
   return (
@@ -124,16 +102,23 @@ const Thought: React.FC<Props> = ({ thought }) => {
       >
         <div
           id="userArea"
-          className=" rounded-3xl p-1  select-none flex flex-row gap-2 items-center"
+          className=" rounded-3xl p-1  select-none flex flex-row gap-5 mb-3 items-center "
+
         >
-          <img
-            className="rounded-full size-8 ring-white ring-2"
-            src={thought?.user.avatar}
-            alt=""
-          />
-          <label className=" select-none light:text-black font-bold">
-            {thought.user.username}
-          </label>
+          <div className='flex flex-row gap-3 justify-center items-center cursor-pointer'
+            onClick={() => navigate(`/users/${thought?.user.username}`)}>
+
+            <img
+              className="rounded-full size-8 ring-white ring-2"
+              src={thought?.user.avatar}
+              alt=""
+
+            />
+            <label className=" select-none light:text-black font-bold">
+              {thought.user.username}
+            </label>
+
+          </div>
           <label className=" select-none light:text-gray-700 opacity-60 text-sm">
             {timePassed}
           </label>
@@ -176,7 +161,7 @@ const Thought: React.FC<Props> = ({ thought }) => {
                 //console.log(user.username);
 
                 return (
-                  <span key={user.username} className='text-blue-500'>@{user.username}</span>
+                  <span key={user.username} className='text-blue-500 cursor-pointer' onClick={() => navigate(`/users/${user.username}`)}>@{user.username}</span>
                 );
               })}
             </div>
@@ -196,27 +181,8 @@ const Thought: React.FC<Props> = ({ thought }) => {
 
           <div>
             <div id="addAComment" className='relative'>
-              {/* <form onSubmit={handleSubmit}> */}
-              {/* <textarea
-                  value={commentText}
-                  onChange={handleCommentChange}
-                  rows={3} // Adjust the number of visible rows as needed
-                  cols={30} // Adjust the number of visible columns as needed
-                  placeholder="Enter comment here..."
-                  className={`p-2 pr-20 rounded-md md:h-22 md:p-4 md:h-20 h-12 w-[98%] resize-none bg-gray-200 dark:bg-gray-600 overflow-auto`}
-                  disabled={isSendingComment ? true : false}
-                  required
-                />
 
-                <div className='absolute right-8 top-[50%] -translate-y-[60%]'>
-                  <LoadingButton
-                    isLoading={isSendingComment}
-                    isEnabled={commentText.length ? true : false}
-                    buttonText="Send"
-                    className='rounded-lg w-6 h-6 text-sm md:w-auto md:h-auto text-white transition delay-200 ' />
-                </div> */}
-
-              <CommentForm placeHolder='Enter comment here' thoughtID={thought._id} />
+              <TextForm placeHolder='Enter comment here' type="comment" onSubmit={handleSubmitComment} />
               {/* </form> */}
 
 
@@ -225,8 +191,8 @@ const Thought: React.FC<Props> = ({ thought }) => {
 
 
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }
 

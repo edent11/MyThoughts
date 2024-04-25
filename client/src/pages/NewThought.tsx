@@ -8,6 +8,10 @@ import { useAuth } from '../contexts/UserAuth'
 import SubmitForm from '../components/CommentForm';
 import TextareaWithTags from '../components/card/TextareaWithTags';
 import ThoughtForm from '../components/ThoughtForm';
+import TextForm from '../components/TextForm';
+import { SubmitComment, SubmitThought } from '../components/shared/types/ThoughtTypes';
+import { fetcherData } from '../components/shared/utils';
+import axios from 'axios';
 
 
 
@@ -17,6 +21,26 @@ const NewThought: React.FC = () => {
 
     const session_token = useAuth().getUser()?.session_token;
     const navigate = useNavigate();
+
+    const handleSubmit = async (thoughtData: SubmitThought | SubmitComment): Promise<any> => {
+
+        console.log(thoughtData);
+        const formData = new FormData();
+
+        Object.entries(thoughtData).forEach(([key, value]) => {
+            // if (key === 'image')
+            //     formData.append(key, value as File);
+            formData.append(key, value as string);
+        });
+
+        const response = axios.post('http://localhost:5000/newThought/', formData);
+
+        // const response = await fetcherData('http://localhost:5000/newThought/', thoughtData);
+        console.log(response);
+
+        return response;
+
+    }
 
 
     return (
@@ -33,7 +57,8 @@ const NewThought: React.FC = () => {
 
                     <h1 className='mt-4 text-3xl'>What do you think about?</h1>
 
-                    <ThoughtForm placeHolder='Enter your thought here'></ThoughtForm>
+                    {/* <ThoughtForm placeHolder='Enter your thought here'></ThoughtForm> */}
+                    <TextForm placeHolder='Enter Your Thought here' type="thought" onSubmit={handleSubmit}></TextForm>
 
 
                 </div>

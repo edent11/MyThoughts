@@ -25,37 +25,40 @@ const Comment: React.FC<Props> = ({ comment }) => {
     <div
       id="commentBox"
       className="bg-gray-100 text-black divide-y-2 divide-transparent
-         p-2 dark:bg-gray-600 dark:text-white shadow-lg rounded-3xl w-[95%]"
-    >
+         p-2 dark:bg-gray-600 dark:text-white shadow-lg rounded-3xl w-[95%]">
+
       <div
         id="userArea"
-        className=" rounded-3xl p-1 select-none flex flex-row gap-2 items-center"
-      >
+        className=" rounded-3xl p-1 select-none flex flex-row gap-2 items-center">
+
         <img
           className="rounded-full size-8 ring-white ring-2"
           src={comment.user.avatar}
           alt=""
         />
+
         <p className=" select-none light:text-black font-bold dark:text-purple-300">
           {comment.user.username}
         </p>
+
         <label className=" select-none light:text-gray-700 opacity-60 text-sm">
           {postTime.toString()}
         </label>
+
       </div>
-      <div id="comment-txt-wrapper" className="ml-8 w-[90%] ">
+      <div id="comment-txt-wrapper" className="ml-8 w-[90%]">
         <p
           id="comment-txt"
-          className={`break-words cursor-pointer line-clamp-${lineClamp} `}
+          className={`break-words cursor-pointer line-clamp-${lineClamp} cursor-text`}
           onClick={() => setLineClamp(prev => prev + 2)}>
 
-          <div className='space-x-2'>
+          <div className='space-x-2 '>
             {
               comment.tags.map((user: { 'username': string }, _) => {
 
                 console.log(user)
                 return (
-                  <span key={user.username} className='text-blue-500'>@{user.username}</span>
+                  <span key={user.username} className='text-blue-500 cursor-pointer' >@{user.username}</span>
                 )
               })
             }

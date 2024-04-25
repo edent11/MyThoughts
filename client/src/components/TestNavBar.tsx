@@ -7,9 +7,10 @@ import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useNavigate } from 'react-router-dom';
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-
+import { BsGlobeAmericas } from "react-icons/bs";
 import { useAuth } from '../contexts/UserAuth';
 import { useTheme } from '../contexts/ThemeProvider';
+import NotificationsBar from './NotificationsBar';
 
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
@@ -60,7 +61,7 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
 }));
 
 
-const NavBar = () => {
+const TestNavBar = () => {
 
 
     const user = useAuth();
@@ -70,24 +71,11 @@ const NavBar = () => {
 
     const containerRef = useRef<HTMLDivElement>(null);
     const [isDropDownVisible, setTsDropDownVisible] = useState<Boolean>(false);
+    const [showNotifications, setShowNotifications] = useState<Boolean>(false);
 
 
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setTsDropDownVisible(false);
-            }
-        };
 
-        // Attach event listener when component mounts
-        document.addEventListener('mousedown', handleClickOutside);
-
-        // Detach event listener when component unmounts
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
 
     return (
@@ -127,16 +115,35 @@ const NavBar = () => {
                                 className='size-8 ring-2 rounded-full ring-green-200 shadow-xl' />
                             <p>{userProfile?.username}</p>
 
+                            <div className='relative'>
 
-                            {
+                                <BsGlobeAmericas size={20} onClick={() => setShowNotifications(showNotifications => !showNotifications)}>
+
+                                </BsGlobeAmericas>
+
+                                <span className="absolute -top-2 -right-1 inline-block bg-purple-500 text-white text-sm rounded-full">
+                                    1
+                                </span>
+                                {
+                                    showNotifications &&
+                                    <NotificationsBar className='absolute'/>
+                                }
+
+
+
+                            </div>
+
+
+
+                            {/* {
                                 isDropDownVisible ? <IoIosArrowUp /> : <IoIosArrowDown />
-                            }
+                            } */}
 
 
                         </div>
 
 
-                        <div
+                        {/* <div
                             id="dropdown"
                             ref={containerRef}
                             className={`z-10  ${isDropDownVisible ? 'block' : 'hidden'}  bg-theme_purple text-white
@@ -164,7 +171,7 @@ const NavBar = () => {
                                     >Sign out</p>
                                 </li>
                             </ul>
-                        </div>
+                        </div> */}
 
                     </div>
 
@@ -196,6 +203,17 @@ const NavBar = () => {
                         >Add Thought</a>
                     </li>
 
+                    <li className={user.isAuthenticated() ? '' : 'hidden'} onClick={
+                        async () => {
+                            await user.logout();
+                            navigate('/login');
+                            window.location.reload();
+                        }}>
+                        <p
+                            className={` no-underline dark:hover:text-purple-400  dark:no-underline hover:underline hover:underline-offset-4`}
+                        >logout</p>
+                    </li>
+
                     <FormGroup>
                         <FormControlLabel
                             control={<MaterialUISwitch sx={{ m: 1 }} defaultChecked onChange={() => theme?.toggle()} />}
@@ -212,4 +230,4 @@ const NavBar = () => {
     )
 }
 
-export default NavBar
+export default TestNavBar

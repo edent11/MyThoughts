@@ -3,6 +3,7 @@ import { useFetcher } from 'react-router-dom'
 import useSWR, { mutate } from 'swr'
 import Thought from './card/Thought'
 import { ThoughtType } from './shared/types/ThoughtTypes'
+import { fetcher } from './shared/utils'
 
 
 type Props = {
@@ -11,12 +12,9 @@ type Props = {
 
 const ThoughtsList: React.FC<Props> = ({ session_token }) => {
 
-  const fetcher = (url: string) => fetch(url).then((res) => res.json())
-  const {
-    data: thoughtsList,
-    isLoading,
-    error,
-  } = useSWR<ThoughtType[]>(`http://localhost:5000/thoughts/${session_token ? session_token : ''}`, fetcher)
+
+  const { data: thoughtsList, isLoading, error } = useSWR<ThoughtType[]>
+    (`http://localhost:5000/thoughts/${session_token ? session_token : ''}`, fetcher)
 
   if (error) {
     return <div>Error loading user profiles</div>
