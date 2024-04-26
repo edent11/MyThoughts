@@ -9,11 +9,10 @@ export interface User {
   session_token: string
 }
 
-export interface UserNotification  {
+export interface UserNotification {
   _id: string
   username: string
   avatar: string
-  sessi
 }
 
 export interface UserProfileData {

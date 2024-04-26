@@ -69,11 +69,28 @@ const TestNavBar = () => {
     const userProfile = user.getUser();
     const navigate = useNavigate();
 
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [isDropDownVisible, setTsDropDownVisible] = useState<Boolean>(false);
     const [showNotifications, setShowNotifications] = useState<Boolean>(false);
 
 
+
+    const containerRef = useRef<HTMLDivElement>(null);
+
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setShowNotifications(false);
+            }
+        };
+
+        // Attach event listener when component mounts
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Detach event listener when component unmounts
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
 
 
@@ -102,9 +119,9 @@ const TestNavBar = () => {
                     <div
 
                         className='rounded space-y-10 relative top-3 self-baseline gap-5 px-2
-                         light:bg-gradient-to-r light:from-blue-900 light:to-blue-950 bg-gradient-to-r from-gray-900 to-blue-950'
+                         light:bg-gradient-to-r light:from-blue-900 light:to-blue-950 bg-gradient-to-r from-gray-900 to-blue-950'>
 
-                        onClick={() => setTsDropDownVisible(true)}>
+                        {/* onClick={() => setTsDropDownVisible(true)}> */}
 
 
                         <div className='p-1 flex flex-row items-center gap-6 cursor-pointer'>
@@ -126,7 +143,10 @@ const TestNavBar = () => {
                                 </span>
                                 {
                                     showNotifications &&
-                                    <NotificationsBar className='absolute'/>
+                                    <div ref={containerRef} >
+
+                                        <NotificationsBar className='absolute' />
+                                    </div>
                                 }
 
 

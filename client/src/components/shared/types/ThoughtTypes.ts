@@ -46,3 +46,14 @@ export type CommentType = {
     tags: [{ username: string }]
 }
 
+export type NotificationType = {
+    _id: string
+    sender: User;
+    type: "thought" | "comment" | "like";
+    timestamp?: Date;
+    thoughtID: string;
+    commentID?: string | null;
+    wasRead?: boolean;
+}
+
+

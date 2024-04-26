@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useFetcher } from 'react-router-dom'
 import useSWR, { mutate } from 'swr'
-import Thought from './card/Thought'
+
 import { ThoughtType } from './shared/types/ThoughtTypes'
 import { fetcher } from './shared/utils'
+import Thought from './card/Thought'
 
 
 type Props = {

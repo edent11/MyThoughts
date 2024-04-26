@@ -8,9 +8,7 @@ import CommentsList from './CommentsList'
 import useSWR, { mutate } from 'swr'
 import { calcTimePassed, fetcherData } from '../shared/utils'
 import ThoughtImage from './ThoughtImage'
-import SubmitForm from '../CommentForm'
 import { UserData, ThoughtType, SubmitComment } from '../shared/types/ThoughtTypes'
-import CommentForm from '../CommentForm'
 import TextForm from '../TextForm'
 import { useNavigate } from 'react-router-dom'
 
@@ -33,9 +31,6 @@ const Thought: React.FC<Props> = ({ thought }) => {
   const userData: UserData = {
     session_token: useAuth().getUser()?.session_token,
   };
-
-
-
 
 
   const { data, error } = useSWR(`http://localhost:5000/thoughts/${thought._id}/isUserLiked`,
@@ -183,8 +178,6 @@ const Thought: React.FC<Props> = ({ thought }) => {
             <div id="addAComment" className='relative'>
 
               <TextForm placeHolder='Enter comment here' type="comment" onSubmit={handleSubmitComment} />
-              {/* </form> */}
-
 
             </div>
           </div>

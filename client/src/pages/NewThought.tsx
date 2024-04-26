@@ -1,16 +1,8 @@
-import React, { ChangeEvent, FormEvent, useState } from 'react'
-import useSWR, { mutate } from 'swr'
+import React from 'react'
 import { useNavigate } from 'react-router-dom';
-import { MdAddPhotoAlternate } from "react-icons/md";
-import { FaExchangeAlt } from "react-icons/fa";
-import LoadingButton from '../components/LoadingButton';
 import { useAuth } from '../contexts/UserAuth'
-import SubmitForm from '../components/CommentForm';
-import TextareaWithTags from '../components/card/TextareaWithTags';
-import ThoughtForm from '../components/ThoughtForm';
 import TextForm from '../components/TextForm';
 import { SubmitComment, SubmitThought } from '../components/shared/types/ThoughtTypes';
-import { fetcherData } from '../components/shared/utils';
 import axios from 'axios';
 
 

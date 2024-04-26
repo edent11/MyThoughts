@@ -1,20 +1,23 @@
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
+import { ObjectId } from "mongodb"
 
 export type Notification = {
 
     sender: ObjectId;
-    type: string;
-    timestamp: Date;
-    content: string;
-    wasRead: boolean;
+    type: "thought" | "comment" | "like";
+    timestamp?: Date;
+    thoughtID: ObjectId;
+    commentID?: ObjectId | null;
+    wasRead?: boolean;
 }
 
 const notificationSchema = new mongoose.Schema<Notification>({
 
     sender: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
     type: { type: String, required: true },
-    content: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
+    thoughtID: { type: mongoose.Schema.Types.ObjectId, required: true },
+    commentID: { type: mongoose.Schema.Types.ObjectId, required: false, default: null },
     wasRead: { type: Boolean, default: false },
 });
 

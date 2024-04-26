@@ -1,17 +1,17 @@
 import { ObjectId } from "mongodb";
-import { createNotificationDB } from "../db/notification"
+import { createNotificationDB, Notification } from "../db/notification"
 
 
 
-export const createNotification = async (recipient: ObjectId, sender: ObjectId, type: string, content: string): Promise<any> => {
+
+export const createNotification = async (notification: Notification): Promise<any> => {
 
 
     return await createNotificationDB({
-        recipient: recipient,
-        sender: sender,
-        type: type,
-        content: content,
-
+        sender: notification.sender,
+        type: notification.type,
+        thoughtID: notification.thoughtID,
+        commentID: notification.commentID,
     });
 }
 

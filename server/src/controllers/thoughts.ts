@@ -7,12 +7,11 @@ import {
     ThoughtsModel
 } from '../db/thought'
 import { getUserBySessionToken, getUserByUsernameDB, getUserIDByUsername } from '../db/user'
-import { get } from 'http';
-import mongoose from 'mongoose';
+
 import { ObjectId } from 'mongodb';
 import { createNotification } from './notifications';
 import { addNotificationToUser } from './users';
-import { createNotificationDB } from '../db/notification';
+import { Notification } from '../db/notification';
 
 
 
@@ -209,15 +208,11 @@ export const createNewThought = async (req: express.Request, res: express.Respon
 
         await Promise.all(tagsArray.map(async (username: string) => {
 
-            console.log(username)
+
             const taggedUser = await getUserByUsernameDB(username);
             if (taggedUser) {
 
                 userIDTags.push(taggedUser._id);
-
-
-                const notification = await createNotification(taggedUser._id, authorUser._id, "thought", "tagged you in his thought")
-                await addNotificationToUser(taggedUser._id, notification._id)
 
             }
 
@@ -234,6 +229,19 @@ export const createNewThought = async (req: express.Request, res: express.Respon
 
         });
 
+        const notificationData: Notification = {
+            sender: authorUser._id,
+            type: "thought",
+            thoughtID: newThought._id,
+            commentID: null
+        }
+
+        await Promise.all(userIDTags.map(async (userID) => {
+
+            const notification = await createNotification(notificationData)
+            await addNotificationToUser(userID, notification._id)
+
+        }));
 
 
         return res.status(200).json(newThought).send();
@@ -319,6 +327,22 @@ export const addComment = async (req: express.Request, res: express.Response) =>
         })
 
         const newComment = await addCommentToThought(thought._id, comment._id);
+
+        const notificationData: Notification = {
+            sender: user._id,
+            type: "thought",
+            thoughtID: thought._id,
+            commentID: comment._id
+        }
+
+        await Promise.all(userIDTags.map(async (userID) => {
+
+            const notification = await createNotification(notificationData)
+            await addNotificationToUser(userID, notification._id)
+
+        }));
+
+
 
         return res.status(200).send(newComment);
 
