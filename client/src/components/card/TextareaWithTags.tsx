@@ -143,7 +143,7 @@ const TextareaWithTags: React.FC<Props> = ({ placeHolder, children, className, t
                 </div>
 
 
-                <div className={`relative flex flex-row p-2 pr-20 rounded-md w-[98%] h-12 md:h-28 md:p-4 bg-gray-200 dark:bg-gray-600 cursor-text`}>
+                <div className={`relative flex flex-row p-2 pr-20 rounded-md w-[98%] h-12 md:h-28 md:p-4 bg-gray-300 dark:bg-gray-600 cursor-text`}>
 
                     <textarea
 
@@ -151,7 +151,7 @@ const TextareaWithTags: React.FC<Props> = ({ placeHolder, children, className, t
                         ref={contentEditableRef}
                         value={text}
                         onChange={handleInput}
-                        className={`w-[80%] resize-none overflow-x-hidden h-full bg-gray-200 dark:bg-gray-600 overflow-auto outline-none `}
+                        className={`w-[80%] resize-none overflow-x-hidden h-full bg-gray-300 dark:bg-gray-600 overflow-auto outline-none `}
                     />
 
 

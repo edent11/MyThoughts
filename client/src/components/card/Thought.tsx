@@ -15,12 +15,13 @@ import { useNavigate } from 'react-router-dom'
 
 interface Props {
   thought: ThoughtType
+  highlightComment?: string | null
 }
 
 
 
 
-const Thought: React.FC<Props> = ({ thought }) => {
+const Thought: React.FC<Props> = ({ thought, highlightComment }) => {
   const [isLiked, setIsLiked] = useState<Boolean | null>(null);
   const timePassed: string = calcTimePassed(thought.createdAt);
   const [showComments, setShowComments] = useState<Boolean>(false);
@@ -36,10 +37,20 @@ const Thought: React.FC<Props> = ({ thought }) => {
   const { data, error } = useSWR(`http://localhost:5000/thoughts/${thought._id}/isUserLiked`,
     () => fetcherData(`http://localhost:5000/thoughts/${thought._id}/isUserLiked`, userData));
 
+  const updateShowComments = () => {
+    setShowComments(prevState => !prevState);
+  };
+
 
   if (data && isLiked == null) {
     setIsLiked(data);
   }
+
+  useEffect(() => {
+    if (highlightComment)
+      setShowComments(true);
+  }, [])
+
 
   const handleSubmitComment = async (commentData: SubmitComment): Promise<string> => {
 
@@ -69,9 +80,7 @@ const Thought: React.FC<Props> = ({ thought }) => {
     }
   }
 
-  const updateShowComments = () => {
-    setShowComments(prevState => !prevState);
-  };
+
 
 
 
@@ -172,7 +181,7 @@ const Thought: React.FC<Props> = ({ thought }) => {
           </div>
 
 
-          <div className='h-auto'>{showComments && <CommentsList thoughtID={thought._id} />}</div>
+          <div className='h-auto'>{showComments && <CommentsList thoughtID={thought._id} highlightComment={highlightComment} />}</div>
 
           <div>
             <div id="addAComment" className='relative'>

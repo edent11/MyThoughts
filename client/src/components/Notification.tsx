@@ -1,17 +1,19 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NotificationType } from './shared/types/ThoughtTypes'
 import { calcTimePassed } from './shared/utils'
+import { useFetcher } from 'react-router-dom'
 
 
 type Props = {
     className?: string
     notification: NotificationType
+    onClick?: () => void
 }
 
 
 
 
-const Notification: React.FC<Props> = ({ className, notification }) => {
+const Notification: React.FC<Props> = ({ className, notification, onClick }) => {
 
     const [message, setMessage] = useState<string>('')
     var timePassed: string | undefined;
@@ -19,16 +21,49 @@ const Notification: React.FC<Props> = ({ className, notification }) => {
     if (notification.timestamp)
         timePassed = calcTimePassed(notification?.timestamp);
 
-    switch (notification.type) {
-        case "thought": { setMessage(`${notification.sender.username} has tagged you in his thought`); break; }
-        case "comment": { setMessage(`${notification.sender.username} has tagged you in his comment`); break; }
-        case "like": { setMessage(`${notification.sender.username} has liked your thought`); break; }
+    const onLoad = () => {
+
+
+
+        switch (notification.type) {
+
+            case "tag": {
+                if (notification.commentID)
+                    setMessage(`has tagged you in his comment`);
+                else setMessage(`has tagged you in his thought`);
+                break;
+
+            }
+
+            case "like": { setMessage(`has liked your thought`); break; }
+
+            case "comment": {
+
+                setMessage(`has commented in your thought`);
+
+                break;
+            }
+        }
+
     }
+
+
+    useEffect(() => {
+
+        onLoad();
+
+
+    }, [])
+
+
+
 
 
 
     return (
-        <div className='w-full bg-purple-500 dark:bg-blue-500 dark:bg-opacity-30 flex flex-col justify-center font-info_story rounded-md'>
+        <div
+            className={`w-full bg-purple-500 dark:bg-blue-500 dark:bg-opacity-30 flex flex-col justify-center font-info_story rounded-md ${className}`}
+            onClick={onClick}>
 
             <div
                 id="userArea"

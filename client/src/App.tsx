@@ -10,6 +10,7 @@ import Register from './pages/Register'
 import NewThought from './pages/NewThought'
 import UserPage from './pages/UserPage';
 import TestNavBar from './components/TestNavBar';
+import ThoughtPage from './pages/ThoughtPage';
 
 
 function App() {
@@ -35,6 +36,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/newThought" element={<NewThought />} />
           <Route path="/users/:username" element={<UserPage />} />
+          <Route path="/thoughts/:thoughtID" element={<ThoughtPage />} />
+          <Route path="/thoughts/:thoughtID/:commentID" element={<ThoughtPage />} />
 
           {/* private routes */}
           <Route path="/" element={<PrivateRoute />}>

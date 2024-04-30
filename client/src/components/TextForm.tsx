@@ -28,9 +28,6 @@ const TextForm: React.FC<Props> = ({ placeHolder, children, type, onSubmit }) =>
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [preview, setPreview] = useState<string>();
 
-    const session_token = useAuth().getUser()?.session_token;
-    const navigate = useNavigate();
-
     if (!user) {
         throw new Error("No user detected")
     }
@@ -119,7 +116,7 @@ const TextForm: React.FC<Props> = ({ placeHolder, children, type, onSubmit }) =>
                 tags={data.tags}
                 addTag={addTag}
                 removeTag={removeTag}
-                className={`relative ${type == "thought" ? 'w-[90%]' : 'w-full'}`} />
+                className={`relative ${type == "thought" ? 'w-[90%]' : 'w-full'} `} />
 
             {
                 type == "thought" &&

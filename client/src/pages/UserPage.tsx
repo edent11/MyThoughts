@@ -99,7 +99,7 @@ const UserPage: React.FC<Props> = () => {
                     <div className='flex w-[100px] flex-col gap-2 justify-center items-center translate-y-[4px]'>
                         <FaRegCommentAlt size={43} />
                         Commented
-                        <CountableNumber value={userProfileData?.likes ? userProfileData?.likes : 0} className='font-bold text-2xl' />
+                        <CountableNumber value={userProfileData?.comments ? userProfileData?.comments : 0} className='font-bold text-2xl' />
                     </div>
 
 

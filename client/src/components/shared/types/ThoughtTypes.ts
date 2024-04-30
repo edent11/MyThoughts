@@ -49,7 +49,7 @@ export type CommentType = {
 export type NotificationType = {
     _id: string
     sender: User;
-    type: "thought" | "comment" | "like";
+    type: "tag" | "comment" | "like";
     timestamp?: Date;
     thoughtID: string;
     commentID?: string | null;

@@ -80,6 +80,7 @@ const NavBar = () => {
             }
         };
 
+
         // Attach event listener when component mounts
         document.addEventListener('mousedown', handleClickOutside);
 

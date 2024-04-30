@@ -1,8 +1,9 @@
 import express from 'express'
 
-import { addNotification, getOtherUsers, getUserBySessionToken, getUserByUsernameDB, getUserNotificationsDB, getUsers } from '../db/user'
+import { addNotification, getOtherUsers, getUnReadNotificationsCountDB, getUserBySessionToken, getUserByUsernameDB, getUserNotificationsDB, getUsers } from '../db/user'
 import { ObjectId } from 'mongodb';
 import { getUserCommentsCountDB, getUserCommentsReceivedCountDB, getUserLikesCountDB, getUserLikesReceivedCountDB, getUserTaggedCountDB, getUserThoughtsCountDB } from '../db/thought';
+import mongoose from 'mongoose';
 
 export const getUsersByString = async (req: express.Request, res: express.Response) => {
 
@@ -56,7 +57,7 @@ export const getAllUsers = async (req: express.Request, res: express.Response) =
     }
 }
 
-export const addNotificationToUser = async (userID: ObjectId, notificationID: ObjectId) => {
+export const addNotificationToUser = async (userID: ObjectId | mongoose.Schema.Types.ObjectId, notificationID: ObjectId) => {
 
     return await addNotification(userID, notificationID);
 
@@ -225,6 +226,30 @@ export const getUserProfileDetails = async (req: express.Request, res: express.R
 
 
         return res.status(200).json({ user, tags, likes, comments, thoughts, likesReceived, commentsReceived });
+    }
+    catch (error) {
+        if (error instanceof Error)
+            return res.status(400).send(error.message);
+    }
+}
+
+export const getUnreadNotificationsCount = async (req: express.Request, res: express.Response) => {
+
+    try {
+
+        const { session_token } = req.body;
+
+        const user = await getUserBySessionToken(session_token);
+
+        if (!user) {
+
+            return res.status(400).send('Username is not exist');
+        }
+
+        const unReadCount: Number = await getUnReadNotificationsCountDB(user._id).then(count => count);
+
+
+        return res.status(200).json(unReadCount);
     }
     catch (error) {
         if (error instanceof Error)

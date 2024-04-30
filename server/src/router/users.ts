@@ -3,7 +3,8 @@ import express from 'express'
 import {
     getAllUsers, getUserNotifications, getUsersByString, getUserByUsername,
     getUserCommentsCount, getUserLikesCount, getUserThoughtsCount, getUserTaggedCount,
-    getUserProfileDetails
+    getUserProfileDetails,
+    getUnreadNotificationsCount
 } from '../controllers/users'
 
 
@@ -11,7 +12,8 @@ const router = express.Router();
 
 router.get('/allUsers', getAllUsers);
 router.post('/taggedUsers', getUsersByString);
-router.get('/users/notifications', getUserNotifications);
+router.post('/users/notifications', getUserNotifications);
+router.post('/users/notificationsCount', getUnreadNotificationsCount);
 router.get('/users/:username', getUserProfileDetails);
 // router.get('/users/:username/commentsCount', getUserCommentsCount);
 // router.get('/users/:username/likesCount', getUserLikesCount);

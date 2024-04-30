@@ -3,7 +3,7 @@ import { User, getUserBySessionToken } from "./user";
 import { ObjectId } from "mongodb";
 
 
-interface Comment {
+export interface Comment {
     user: mongoose.Schema.Types.ObjectId;
     text: string;
     createdAt: Date;
@@ -11,7 +11,7 @@ interface Comment {
 
 }
 
-interface Thought {
+export interface Thought {
     user: mongoose.Schema.Types.ObjectId;
     createdAt: Date;
     content: {
@@ -277,7 +277,10 @@ export const getThoughtsByUsername = (username: string) => ThoughtsModel.findOne
 export const getThoughtsLik = () => ThoughtsModel.find({ likes: undefined });
 
 
-export const getThoughtById = (tid: string) => ThoughtsModel.findById(tid);
+export const getThoughtById = (tid: string) => ThoughtsModel.findById(tid).select('-comments -likes').populate('user').populate({
+    path: 'content.tags', // Specify the field to populate
+    select: '-_id username' // Specify the fields to include from the populated documents
+});;
 
 
 export const createThought = (values: Record<string, any>) => new ThoughtsModel(values)

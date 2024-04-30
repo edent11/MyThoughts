@@ -4,7 +4,8 @@ import {
     createThought, getThoughtById, getThoughts, getThoughtsLik,
     getLikesByThoughtID, isUserLiked, getComments, addCommentToThought,
     unLike, getCommentsNumber, createComment, addUserLike, getThoughtsByUsername,
-    ThoughtsModel
+    ThoughtsModel,
+    Thought
 } from '../db/thought'
 import { getUserBySessionToken, getUserByUsernameDB, getUserIDByUsername } from '../db/user'
 
@@ -119,14 +120,16 @@ export const getThoughtByID = async (req: express.Request, res: express.Response
 
         const thoughtID = req.params.thoughtID;
 
+
         if (!thoughtID)
-            return res.status(404).send("Thought Not Found");
+            return res.status(404).send("Thought wasn't found");
 
 
-        const thought = await getThoughtById(thoughtID)
-            .then(data => {
-                return data;
-            });
+        const thought = await getThoughtById(thoughtID);
+
+        if (!thought)
+            return res.status(404).send("Thought wasn't found");
+
 
         return res.status(200).json(thought);
     }
@@ -231,7 +234,7 @@ export const createNewThought = async (req: express.Request, res: express.Respon
 
         const notificationData: Notification = {
             sender: authorUser._id,
-            type: "thought",
+            type: "tag",
             thoughtID: newThought._id,
             commentID: null
         }
@@ -304,22 +307,22 @@ export const addComment = async (req: express.Request, res: express.Response) =>
         if (!thought)
             return res.status(400).send(`Could not find requested thought`);
 
-        const user = await getUserBySessionToken(session_token);
+        const commentUser = await getUserBySessionToken(session_token);
 
-        if (!user)
+        if (!commentUser)
             return res.status(400).send(`Could not authenticate user`);
 
         if (tags.length > 0) {
             for (const username of tags) {
-                const user = await getUserByUsernameDB(username);
-                if (user) {
-                    userIDTags.push(user._id);
+                const taggedUser = await getUserByUsernameDB(username);
+                if (taggedUser) {
+                    userIDTags.push(taggedUser._id);
                 }
             }
         }
 
         const comment = await createComment({
-            user: user._id,
+            user: commentUser._id,
             text: text,
             created_at: Date.now(),
             tags: userIDTags
@@ -329,8 +332,8 @@ export const addComment = async (req: express.Request, res: express.Response) =>
         const newComment = await addCommentToThought(thought._id, comment._id);
 
         const notificationData: Notification = {
-            sender: user._id,
-            type: "thought",
+            sender: commentUser._id,
+            type: "tag",
             thoughtID: thought._id,
             commentID: comment._id
         }
@@ -341,6 +344,23 @@ export const addComment = async (req: express.Request, res: express.Response) =>
             await addNotificationToUser(userID, notification._id)
 
         }));
+
+        if (String(thought.user) !== String(comment.user)) {
+
+            console.log(thought.user, comment.user)
+
+            const notificationDataComment: Notification = {
+                sender: commentUser._id,
+                type: "comment",
+                thoughtID: thought._id,
+                commentID: comment._id
+            }
+
+            const notification = await createNotification(notificationDataComment)
+            await addNotificationToUser(thought.user, notification._id)
+        }
+
+
 
 
 

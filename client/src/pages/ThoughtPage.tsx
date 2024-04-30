@@ -11,21 +11,22 @@ type Props = {
 
 const ThoughtPage: React.FC<Props> = () => {
 
-    const thoughtID = useParams();
-    const commentID = useParams();
+    const { thoughtID } = useParams();
+    const { commentID } = useParams();
+
 
     const { data: thought, isLoading, error } = useSWR<ThoughtType>
-        (`http://localhost:5000/thoughts/${thoughtID}`, fetcher);
+        (`http://localhost:5000/thoughts/${thoughtID}`, fetcher)
 
 
     return (
-        <div className="h-full">hh
+        <div className="min-h-[calc(100vh-4rem)]">
             {
                 thought &&
-                <Thought thought={thought} />
+
+                <Thought thought={thought} highlightComment={commentID} />
+
             }
-
-
 
         </div>
     )

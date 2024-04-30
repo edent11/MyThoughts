@@ -8,10 +8,11 @@ import { CommentType } from '../shared/types/ThoughtTypes'
 
 interface Props {
   thoughtID: string
+  highlightComment?: string | null
 
 }
 
-const Comments: React.FC<Props> = ({ thoughtID }) => {
+const Comments: React.FC<Props> = ({ thoughtID, highlightComment }) => {
   const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 
@@ -32,7 +33,10 @@ const Comments: React.FC<Props> = ({ thoughtID }) => {
 
         {isLoading ? <LoadingSvg /> :
           commentsList?.map((comment) => {
+            if (highlightComment && highlightComment === comment._id)
+              return <Comment key={comment._id} comment={comment} className='bg-purple-300' />
             return <Comment key={comment._id} comment={comment} />
+
           })}
       </div>
 

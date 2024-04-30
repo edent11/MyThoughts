@@ -3,7 +3,7 @@ import ThoughtsList from '../components/ThoughtsList'
 
 const Home = () => {
   return (
-    <div className="w-full flex justify-center dark:bg-gradient-to-br dark:from-gray-900 dark:to-blue-900 h-full">
+    <div className="w-full flex justify-center dark:bg-blue-950 h-full">
       <ThoughtsList />
     </div>
   )

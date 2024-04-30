@@ -5,9 +5,10 @@ import { CommentType } from '../shared/types/ThoughtTypes'
 
 interface Props {
   comment: CommentType
+  className?: string
 }
 
-const Comment: React.FC<Props> = ({ comment }) => {
+const Comment: React.FC<Props> = ({ comment, className }) => {
 
   const [lineClamp, setLineClamp] = useState<number>(3);
   const [postTime, setPostTime] = useState<string>(calcTimePassed(comment.createdAt));
@@ -24,8 +25,8 @@ const Comment: React.FC<Props> = ({ comment }) => {
   return (
     <div
       id="commentBox"
-      className="bg-gray-100 text-black divide-y-2 divide-transparent
-         p-2 dark:bg-gray-600 dark:text-white shadow-lg rounded-3xl w-[95%]">
+      className={`bg-gray-100 text-black divide-y-2 divide-transparent
+         p-2 dark:bg-gray-600 dark:text-white shadow-lg rounded-3xl w-[95%] ${className}`}>
 
       <div
         id="userArea"

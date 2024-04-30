@@ -15,7 +15,7 @@ const ThoughtsList: React.FC<Props> = ({ session_token }) => {
 
 
   const { data: thoughtsList, isLoading, error } = useSWR<ThoughtType[]>
-    (`http://localhost:5000/thoughts/${session_token ? session_token : ''}`, fetcher)
+    (`http://localhost:5000/thoughts/`, fetcher)
 
   if (error) {
     return <div>Error loading user profiles</div>

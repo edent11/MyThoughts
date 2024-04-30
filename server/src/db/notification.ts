@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb"
 export type Notification = {
 
     sender: ObjectId;
-    type: "thought" | "comment" | "like";
+    type: "tag" | "comment" | "like";
     timestamp?: Date;
     thoughtID: ObjectId;
     commentID?: ObjectId | null;
