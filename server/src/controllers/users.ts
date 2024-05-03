@@ -4,6 +4,7 @@ import { addNotification, getOtherUsers, getUnReadNotificationsCountDB, getUserB
 import { ObjectId } from 'mongodb';
 import { getUserCommentsCountDB, getUserCommentsReceivedCountDB, getUserLikesCountDB, getUserLikesReceivedCountDB, getUserTaggedCountDB, getUserThoughtsCountDB } from '../db/thought';
 import mongoose from 'mongoose';
+import { getNotificationDB, setNotificationReadDB } from '../db/notification';
 
 export const getUsersByString = async (req: express.Request, res: express.Response) => {
 
@@ -194,7 +195,7 @@ export const getUserTaggedCount = async (req: express.Request, res: express.Resp
             return res.status(400).send('Username is not exist');
         }
 
-        const count = await getUserTaggedCountDB(user._id);
+        const count: Number = await getUserTaggedCountDB(user._id);
 
         return res.status(200).json(count);
     }
@@ -246,10 +247,44 @@ export const getUnreadNotificationsCount = async (req: express.Request, res: exp
             return res.status(400).send('Username is not exist');
         }
 
-        const unReadCount: Number = await getUnReadNotificationsCountDB(user._id).then(count => count);
-
+        const unReadCount: number = await getUnReadNotificationsCountDB(user._id);
 
         return res.status(200).json(unReadCount);
+    }
+    catch (error) {
+        if (error instanceof Error)
+            return res.status(400).send(error.message);
+    }
+}
+
+export const setNotificationRead = async (req: express.Request, res: express.Response) => {
+
+    try {
+
+
+        const { session_token, notificationID } = req.body;
+
+        if (!session_token) {
+
+            return res.status(400).send('Missing data');
+        }
+
+        const user = await getUserBySessionToken(session_token);
+
+        if (!user) {
+
+            return res.status(400).send('Username is not exist');
+        }
+        const notification = await getNotificationDB(notificationID);
+
+        if (!notification) {
+
+            return res.status(400).send('Username is not exist');
+        }
+
+        await setNotificationReadDB(notification._id);
+
+        return res.status(200).send();
     }
     catch (error) {
         if (error instanceof Error)

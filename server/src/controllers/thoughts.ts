@@ -21,15 +21,21 @@ import { Notification } from '../db/notification';
 export const allThoughtsWithoutLikes = async (req: express.Request, res: express.Response) => {
 
     try {
-        const thoughts = await getThoughts()
-            .then(data => {
-                return data;
-            });
-        return res.status(200).json(thoughts);
+        const { startIndex } = req.params;
+
+
+
+        if (startIndex && +startIndex >= 0) {
+
+            const thoughts = await getThoughts(+startIndex);
+
+            return res.status(200).json(thoughts);
+        }
+        else throw new Error("Invalid index")
 
     }
     catch (err) {
-        console.log(err);
+        return res.status(404).send(err);
     }
 
 
@@ -121,8 +127,12 @@ export const getThoughtByID = async (req: express.Request, res: express.Response
         const thoughtID = req.params.thoughtID;
 
 
+
         if (!thoughtID)
             return res.status(404).send("Thought wasn't found");
+
+        // if (thoughtID.length != 24)
+        //     return res.status(404).send("Thought wasn't found");
 
 
         const thought = await getThoughtById(thoughtID);
@@ -134,7 +144,7 @@ export const getThoughtByID = async (req: express.Request, res: express.Response
         return res.status(200).json(thought);
     }
     catch (err) {
-        console.log(err);
+        res.status(404).send(err);
     }
 
 }

@@ -11,6 +11,7 @@ import NewThought from './pages/NewThought'
 import UserPage from './pages/UserPage';
 import TestNavBar from './components/TestNavBar';
 import ThoughtPage from './pages/ThoughtPage';
+import PageNotFound from './pages/PageNotFound';
 
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
       {/* <NavBar /> */}
       <TestNavBar />
       <main
-        className={`w-full h-full flex flex-col items-center justify-center 
+        className={`w-full h-[calc(100vh-4rem)] flex flex-col items-center justify-center 
        text-white bg-gradient-to-l bg-gray-400 dark:from-gray-900 dark:to-gray-800`}
       >
         <Routes>
@@ -36,8 +37,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/newThought" element={<NewThought />} />
           <Route path="/users/:username" element={<UserPage />} />
-          <Route path="/thoughts/:thoughtID" element={<ThoughtPage />} />
-          <Route path="/thoughts/:thoughtID/:commentID" element={<ThoughtPage />} />
+          <Route path="/thoughts/:combinedParams" element={<ThoughtPage />} />
+          <Route path="/PageNotFound" element={<PageNotFound />} />
 
           {/* private routes */}
           <Route path="/" element={<PrivateRoute />}>

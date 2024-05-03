@@ -151,7 +151,7 @@ const TextareaWithTags: React.FC<Props> = ({ placeHolder, children, className, t
                         ref={contentEditableRef}
                         value={text}
                         onChange={handleInput}
-                        className={`w-[80%] resize-none overflow-x-hidden h-full bg-gray-300 dark:bg-gray-600 overflow-auto outline-none `}
+                        className={`w-[80%] text-sm resize-none overflow-x-hidden h-full bg-gray-300 dark:bg-gray-600 overflow-auto outline-none `}
                     />
 
 

@@ -1,6 +1,8 @@
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
-import { authentication } from "../helpers/helpers";
+import { authentication, random } from "../helpers/helpers";
+import { checkIfNotificationReadDB, getNotificationDB } from "./notification";
+import { Notification } from "../db/notification"
 
 
 
@@ -101,6 +103,7 @@ export const getUserNotificationsDB = (userID: ObjectId): Promise<Number> => Use
             "type": "$notification.type",
             "thoughtID": "$notification.thoughtID",
             "commentID": "$notification.commentID",
+            "wasRead": "$notification.wasRead",
         }
     }
 
@@ -112,20 +115,21 @@ export const getUserNotificationsDB = (userID: ObjectId): Promise<Number> => Use
 ]).then((result) => result)
     .catch(error => error);
 
-export const getUnReadNotificationsCountDB = (userID: ObjectId): Promise<Number> => UserModel.aggregate([
-    // Match thoughts created by the user
-    { $match: { _id: userID } },
+export const getUnReadNotificationsCountDB = (userID: ObjectId): Promise<number> => UserModel.findById(userID).select('notifications')
+    .then(async (user) => {
+        if (!user) {
+            throw new Error('User not found');
+        }
 
-    { $unwind: '$notifications' },
+        var count: number = 0;
 
-    // Match the notifications that are unread (wasRead = false or undefined)
-    { $match: { 'notification.wasRead': { $ne: true } } },
+        await Promise.all(user.notifications.map(async (notificationId) => {
 
-    // Group by null to count the number of unread notifications
-    { $group: { _id: null, unreadNotificationsCount: { $sum: 1 } } },
+            const isRead: boolean = await checkIfNotificationReadDB(notificationId);
 
+            return !isRead ? count++ : null;
+        }));
 
+        return count;
+    })
 
-
-]).then((result) => result.length > 0 ? result[0].unreadNotificationsCount : 0)
-    .catch(error => error);

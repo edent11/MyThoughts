@@ -20,13 +20,6 @@ type Props = {}
 
 const UserPage: React.FC<Props> = () => {
 
-    const [settings, setSettings] = useState<{ width: number, height: number, value: number }>({
-        width: 200,
-        height: 200,
-        value: 10
-    })
-
-
     const { username } = useParams();
 
     const { data: userProfileData, isLoading, error } = useSWR<UserProfileData>

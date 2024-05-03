@@ -39,7 +39,7 @@ const NewThought: React.FC = () => {
         <div className={`h-[calc(100vh-4rem)] font-info_story w-full flex items-center justify-center`}>
 
 
-            <div className='w-1/2 min-h-3/4 bg-gray-200 dark:bg-gray-800 text-black dark:text-white
+            <div className='w-1/2 md:min-h-3/4  bg-gray-200 dark:bg-gray-800 text-black dark:text-white
              rounded-xl border-[3px] border-purple-500 bg-cover bg-center bg-no-repeat'>
 
 
@@ -47,7 +47,7 @@ const NewThought: React.FC = () => {
                 <div className=' backdrop-blur-sm h-full w-full flex flex-col items-center gap-8'>
 
 
-                    <h1 className='mt-4 text-3xl'>What do you think about?</h1>
+                    <h1 className='mt-4 text-lg md:text-3xl'>What do you think about?</h1>
 
                     {/* <ThoughtForm placeHolder='Enter your thought here'></ThoughtForm> */}
                     <TextForm placeHolder='Enter Your Thought here' type="thought" onSubmit={handleSubmit}></TextForm>

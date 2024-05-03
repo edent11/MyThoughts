@@ -116,19 +116,18 @@ const TextForm: React.FC<Props> = ({ placeHolder, children, type, onSubmit }) =>
                 tags={data.tags}
                 addTag={addTag}
                 removeTag={removeTag}
-                className={`relative ${type == "thought" ? 'w-[90%]' : 'w-full'} `} />
+                className={`relative ${type == "thought" ? 'w-[90%]' : 'w-full'} text-sm`} />
 
             {
+                // Drop an Image
                 type == "thought" &&
-                <label className='relative cursor-pointer w-1/2 h-32 bg-cover bg-center backdrop-blur-xl rounded-xl border-dashed border-[3px]
+                <label className='relative cursor-pointer w-1/2 md:h-32 bg-cover bg-center backdrop-blur-xl rounded-xl border-dashed border-[3px]
                          dark:border-white bg-gray-300 dark:bg-gray-800 flex flex-col items-center justify-center' htmlFor="formId"
                     style={{ backgroundImage: "url(" + preview + ")" }}>
                     <input name="" type="file" id="formId" onChange={handleImageChange} accept="image/*" hidden />
 
                     {preview ? <FaExchangeAlt /> : <MdAddPhotoAlternate size={40} className='text-purple-700 dark:text-white' />}
 
-
-                    {/* {preview ? (`${'image' in data ? data.image?.name : ''}`) : 'Click here to upload an image'} */}
 
                 </label>
             }

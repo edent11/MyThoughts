@@ -199,7 +199,7 @@ const NavBar = () => {
 
                     <FormGroup>
                         <FormControlLabel
-                            control={<MaterialUISwitch sx={{ m: 1 }} defaultChecked onChange={() => theme?.toggle()} />}
+                            control={<MaterialUISwitch sx={{ m: 1 }} defaultChecked checked={theme?.isDarkMode()} onChange={() => theme?.toggle()} />}
                             label=""
                         />
                     </FormGroup>

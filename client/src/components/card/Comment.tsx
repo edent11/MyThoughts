@@ -6,9 +6,10 @@ import { CommentType } from '../shared/types/ThoughtTypes'
 interface Props {
   comment: CommentType
   className?: string
+  childRef?: React.RefObject<HTMLDivElement>
 }
 
-const Comment: React.FC<Props> = ({ comment, className }) => {
+const Comment: React.FC<Props> = ({ comment, className, childRef }) => {
 
   const [lineClamp, setLineClamp] = useState<number>(3);
   const [postTime, setPostTime] = useState<string>(calcTimePassed(comment.createdAt));
@@ -25,6 +26,7 @@ const Comment: React.FC<Props> = ({ comment, className }) => {
   return (
     <div
       id="commentBox"
+      ref={childRef}
       className={`bg-gray-100 text-black divide-y-2 divide-transparent
          p-2 dark:bg-gray-600 dark:text-white shadow-lg rounded-3xl w-[95%] ${className}`}>
 
@@ -59,7 +61,7 @@ const Comment: React.FC<Props> = ({ comment, className }) => {
 
                 console.log(user)
                 return (
-                  <span key={user.username} className='text-blue-500 cursor-pointer' >@{user.username}</span>
+                  <span key={user.username} className='text-blue-500 rounded-sm bg-gray-300 cursor-pointer' >@{user.username}</span>
                 )
               })
             }

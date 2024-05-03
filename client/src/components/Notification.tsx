@@ -62,14 +62,14 @@ const Notification: React.FC<Props> = ({ className, notification, onClick }) => 
 
     return (
         <div
-            className={`w-full bg-purple-500 dark:bg-blue-500 dark:bg-opacity-30 flex flex-col justify-center font-info_story rounded-md ${className}`}
+            className={`w-[95%] bg-white text-black dark:text-white dark:bg-blue-500 dark:bg-opacity-30 flex flex-col font-info_story rounded-md ${className}`}
             onClick={onClick}>
 
             <div
                 id="userArea"
                 className="rounded-3xl p-1 select-none flex flex-row gap-2 items-center">
 
-                <div className='flex flex-row items-center bg-blue-900 dark:bg-purple-700 bg-opacity-80 rounded-lg p-1 gap-2'>
+                <div className='flex flex-row items-center text-white bg-blue-900 dark:bg-purple-700 bg-opacity-80 rounded-lg px-2 py-1 gap-2'>
 
                     <img
                         className="rounded-full size-8 ring-white ring-2"
@@ -82,7 +82,7 @@ const Notification: React.FC<Props> = ({ className, notification, onClick }) => 
                     </p>
                 </div>
 
-                <p className=" select-none light:text-black">
+                <p className=" select-none text-[0.9rem] light:text-black">
                     {message}
                 </p>
 

@@ -26,6 +26,8 @@ export interface Thought {
 
 }
 
+const THOUGHTS_THRESHOLD: number = 2;
+
 // Extend the Document interface to include the fields from the Thought interface
 interface ThoughtDocument extends Thought, Document { }
 
@@ -105,10 +107,10 @@ export const CommentModel = mongoose.model('Comments', commentSchema);
 
 
 
-export const getThoughts = () => ThoughtsModel.find().select('-comments -likes').populate('user').populate({
+export const getThoughts = (startIndex: number) => ThoughtsModel.find().select('-comments -likes').populate('user').populate({
     path: 'content.tags', // Specify the field to populate
     select: '-_id username' // Specify the fields to include from the populated documents
-});
+}).sort({ createdAt: 1 }).limit(THOUGHTS_THRESHOLD).skip(startIndex);
 
 
 export const getUserCommentsCountDB = (userID: ObjectId): Promise<Number> => ThoughtsModel.aggregate([

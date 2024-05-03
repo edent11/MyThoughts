@@ -11,6 +11,9 @@ import { BsGlobeAmericas } from "react-icons/bs";
 import { useAuth } from '../contexts/UserAuth';
 import { useTheme } from '../contexts/ThemeProvider';
 import NotificationsBar from './NotificationsBar';
+import useSWR from 'swr';
+import axios from 'axios';
+import { fetcherData } from './shared/utils';
 
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
@@ -73,6 +76,13 @@ const TestNavBar = () => {
 
 
 
+    const { data: unReadNotificationsNumber, error } = useSWR('http://localhost:5000/users/unreadNotificationsCount/',
+        url => fetcherData(url, { session_token: user.getUser()?.session_token }), {
+        refreshInterval: 1000
+    });
+
+
+
     const containerRef = useRef<HTMLDivElement>(null);
 
 
@@ -85,6 +95,7 @@ const TestNavBar = () => {
 
         // Attach event listener when component mounts
         document.addEventListener('mousedown', handleClickOutside);
+
 
         // Detach event listener when component unmounts
         return () => {
@@ -137,10 +148,12 @@ const TestNavBar = () => {
                                 <BsGlobeAmericas size={20} onClick={() => setShowNotifications(showNotifications => !showNotifications)}>
 
                                 </BsGlobeAmericas>
-
-                                <span className="absolute -top-2 -right-1 inline-block bg-purple-500 text-white text-sm rounded-full">
-                                    1
-                                </span>
+                                {unReadNotificationsNumber > 0 &&
+                                    <span className="absolute -top-1 -right-2 justify-center items-center flex
+                                     bg-purple-500 text-white text-sm rounded-full size-[15px]">
+                                        {unReadNotificationsNumber.toString()}
+                                    </span>
+                                }
                                 {
                                     showNotifications &&
                                     <div ref={containerRef} >
@@ -236,7 +249,7 @@ const TestNavBar = () => {
 
                     <FormGroup>
                         <FormControlLabel
-                            control={<MaterialUISwitch sx={{ m: 1 }} defaultChecked onChange={() => theme?.toggle()} />}
+                            control={<MaterialUISwitch sx={{ m: 1 }} checked={theme?.isDarkMode()} onChange={() => theme?.toggle()} />}
                             label=""
                         />
                     </FormGroup>

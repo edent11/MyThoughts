@@ -86,7 +86,7 @@ const Thought: React.FC<Props> = ({ thought, highlightComment }) => {
 
   return (
     <div className="flex flex-col gap-2 font-signika backdrop-contrast-150 drop-shadow-[0_10px_10px_rgba(200,200,200,0.4)]
-    py-2 px-1 mt-10 bg-white dark:bg-gray-700 w-[80vw] ring-2 ring-purple-500  rounded-lg md:w-[540px]">
+    py-2 px-1 mt-10 bg-white dark:bg-gray-700 w-[80vw] ring-2 ring-purple-500 mx-auto rounded-lg md:w-[540px]">
 
       {thought.content.imageSource &&
         <div id="picArea" className="relative text-center mb-4 select-none">

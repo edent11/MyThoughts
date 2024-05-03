@@ -15,10 +15,11 @@ const upload = multer({ dest: 'assets/images' }); // Specify the directory to wh
 router.use(bodyParser.urlencoded({ extended: true }));
 // Route to render all images
 // router.get('/feed', displayAllThoughts);
-router.get('/thoughts', allThoughtsWithoutLikes);
+router.get('/thoughts/:startIndex', allThoughtsWithoutLikes);
+router.get('/thoughts/:thoughtID', getThoughtByID);
 // Responses represent likes and comments number
 router.get('/thoughts/:thoughtID/likes', getThoughtLikesByID);
-router.get('/thoughts/:thoughtID', getThoughtByID);
+
 router.post('/newThought', upload.single('image'), createNewThought);
 router.post('/thoughts/:thoughtID/addLike', addLike);
 router.post('/thoughts/:thoughtID/unLike', makeUnLike);

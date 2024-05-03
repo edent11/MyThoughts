@@ -59,3 +59,19 @@ export const fetchFormData = async (url: string, body: FormData) => await fetch(
     body: body
 })
 
+// export const fetcherData = async (url: string, body: any): Promise<any> => {
+//     const response = await fetch(url, {
+//         method: 'POST',
+//         body: JSON.stringify(body), // Pass the request body
+//         headers: {
+//             'Content-Type': 'application/json'
+//         }
+//     });
+
+//     if (!response.ok) {
+//         throw new Error('Failed to fetch data');
+//     }
+
+//     return response.json();
+// };
+
