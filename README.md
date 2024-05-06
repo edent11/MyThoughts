@@ -1,2 +1,2 @@
-# MyMovies
-Movies fullstack web-app using TS &amp; Express &amp; MongoDB
+# MyThoughts
+A fullstack web-app for sharing thoughts using TS & Express & MongoDB
